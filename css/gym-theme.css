@@ -920,3 +920,86 @@ html.intro-lock { overflow: hidden; }
   .tear-intro { display: none !important; }
   .reveal { opacity: 1; transform: none; transition: none; }
 }
+
+/* ==========================================================================
+   App detail page (app/index.html) — its own accent color (Ironpeak green)
+   so it reads as "a project page" inside the GYM STATS site, not a reskin.
+   ========================================================================== */
+:root { --app-accent: #1fa76a; --app-accent-wash: rgba(31, 167, 106, 0.14); }
+
+.app-hero { max-width: 760px; margin: 0 auto; padding: 64px 24px 40px; text-align: center; }
+.app-hero img.app-hero-icon { margin-bottom: 18px; }
+.app-hero h1 { font-size: clamp(2.1rem, 5vw, 3rem); margin-bottom: 14px; }
+.app-hero .lead { color: var(--text-secondary); max-width: 62ch; margin: 0 auto 24px; }
+.app-hero .lead strong { color: var(--text); }
+.badge-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 14px; }
+.badge-row img { height: 20px; display: block; }
+.app-hero-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 28px; }
+
+.screenshot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 18px;
+  max-width: var(--container);
+  margin: 0 auto;
+}
+.screenshot-grid figure { margin: 0; }
+.screenshot-grid img {
+  width: 100%;
+  display: block;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+}
+.screenshot-grid figcaption {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  max-width: var(--container);
+  margin: 0 auto;
+}
+.feature-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 26px 24px;
+}
+.feature-block .feature-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.feature-block .feature-head img { flex-shrink: 0; }
+.feature-block h3 { font-size: 1.05rem; font-family: var(--font-body); font-weight: 700; text-transform: none; letter-spacing: 0; }
+.feature-block ul { padding-left: 20px; color: var(--text-secondary); font-size: 0.9rem; }
+.feature-block li { margin-bottom: 8px; }
+.feature-block li:last-child { margin-bottom: 0; }
+.feature-block li::marker { color: var(--app-accent); }
+
+.credits-box {
+  max-width: var(--container);
+  margin: 0 auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px 28px;
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+}
+.credits-box a { color: var(--app-accent); font-weight: 600; }
+.credits-box a:hover { text-decoration: underline; }
+.credits-box p + p { margin-top: 10px; }
+
+.privacy-note {
+  max-width: 760px;
+  margin: 0 auto;
+  text-align: center;
+  color: var(--text-secondary);
+}
+.privacy-note img { margin-bottom: 16px; }

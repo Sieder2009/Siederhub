@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ironpeak Fitness | GYM STATS</title>
+    <meta name="description" content="Ironpeak Fitness — workout planner, strength tracker, and analytics tool for Android, iOS, Windows and macOS. 100% local data.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/gym-theme.css">
+    <script src="../js/site-effects.js" defer></script>
+</head>
+<body>
+    <div class="tear-intro" id="tearIntro" aria-hidden="true">
+        <div class="tear-half tear-top">
+            <span class="tear-mark">GYM<em>STATS</em></span>
+        </div>
+        <div class="tear-half tear-bottom"></div>
+    </div>
+    <nav class="site-nav">
+        <a href="../index.html" class="brand">GYM<span>STATS</span></a>
+        <div class="nav-links">
+            <a href="../index.html">← Home</a>
+            <a href="https://github.com/Sieder2009/GymTracker" target="_blank" rel="noopener">GitHub ↗</a>
+        </div>
+    </nav>
+
+    <section class="app-hero reveal">
+        <img class="app-hero-icon" src="https://api.iconify.design/lucide:mountain-snow.svg?color=%231fa76a" width="56" height="56" alt="">
+        <h1>Ironpeak Fitness</h1>
+        <p class="lead"><strong>A workout planner, strength tracker, and deep analytics tool</strong> — built as a native app for Android, iOS, Windows, and macOS. All your data stays <strong>100% on your device</strong>: no cloud, no server, no account, no tracking.</p>
+        <div class="badge-row">
+            <a href="https://github.com/Sieder2009/GymTracker/actions/workflows/android.yml" target="_blank" rel="noopener"><img src="https://github.com/Sieder2009/GymTracker/actions/workflows/android.yml/badge.svg" alt="Android Build status"></a>
+            <a href="https://github.com/Sieder2009/GymTracker/actions/workflows/ios.yml" target="_blank" rel="noopener"><img src="https://github.com/Sieder2009/GymTracker/actions/workflows/ios.yml/badge.svg" alt="iOS Build status"></a>
+            <a href="https://github.com/Sieder2009/GymTracker/actions/workflows/windows.yml" target="_blank" rel="noopener"><img src="https://github.com/Sieder2009/GymTracker/actions/workflows/windows.yml/badge.svg" alt="Windows Build status"></a>
+            <a href="https://github.com/Sieder2009/GymTracker/actions/workflows/macos.yml" target="_blank" rel="noopener"><img src="https://github.com/Sieder2009/GymTracker/actions/workflows/macos.yml/badge.svg" alt="macOS Build status"></a>
+        </div>
+        <div class="badge-row">
+            <img src="https://img.shields.io/badge/Flutter-stable-02569B?logo=flutter&amp;logoColor=white" alt="Flutter stable">
+            <img src="https://img.shields.io/badge/Platforms-Android%20%7C%20iOS%20%7C%20Windows%20%7C%20macOS-informational" alt="Platforms: Android, iOS, Windows, macOS">
+            <img src="https://img.shields.io/badge/Data-100%25%20local-1fa76a" alt="100% local data">
+            <img src="https://img.shields.io/github/v/release/Sieder2009/GymTracker?color=1fa76a&amp;label=latest%20release" alt="Latest release version">
+        </div>
+        <div class="app-hero-actions">
+            <a href="https://github.com/Sieder2009/GymTracker/releases" class="btn btn-primary" target="_blank" rel="noopener">Download →</a>
+            <a href="https://github.com/Sieder2009/GymTracker" class="btn btn-outline" target="_blank" rel="noopener">View source</a>
+        </div>
+    </section>
+
+    <section class="section" id="tabs">
+        <div class="section-header">
+            <span class="eyebrow">Structure</span>
+            <h2>Four tabs, nothing more</h2>
+            <p>Training, Strength, Analytics, and Exercises. Calendar, gallery, settings, backup, theme, and language live together in one menu instead of crowding the tab bar.</p>
+        </div>
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead><tr><th>Tab</th><th>What it's for</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>Training</strong></td><td>Today's workout, guided sets, choose/create/import a plan</td></tr>
+                    <tr><td><strong>Strength</strong></td><td>Bench Press / Deadlift / Squat: PR, history, trend, strength level, plate calculator</td></tr>
+                    <tr><td><strong>Analytics</strong></td><td>Overview, strength trends, volume, consistency, achievements — all from real logged data</td></tr>
+                    <tr><td><strong>Exercises</strong></td><td>535 exercises, searchable, with an illustrated muscle diagram</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="section section-alt" id="screenshots">
+        <div class="section-header">
+            <span class="eyebrow">Screenshots</span>
+            <h2>Real captures, not mockups</h2>
+            <p>From the iOS Simulator (iPhone 17, iOS 26).</p>
+        </div>
+        <div class="screenshot-grid">
+            <figure class="reveal">
+                <img src="https://raw.githubusercontent.com/Sieder2009/GymTracker/master/screenshots/screenshot-training.png" alt="Training tab: today's workout with set tracking and rest timer" loading="lazy">
+                <figcaption>Training</figcaption>
+            </figure>
+            <figure class="reveal">
+                <img src="https://raw.githubusercontent.com/Sieder2009/GymTracker/master/screenshots/screenshot-strength.png" alt="Strength tab: bodyweight log, DOTS score, and a plain-language strength level" loading="lazy">
+                <figcaption>Strength</figcaption>
+            </figure>
+            <figure class="reveal">
+                <img src="https://raw.githubusercontent.com/Sieder2009/GymTracker/master/screenshots/screenshot-analytics.png" alt="Analytics tab: overview stats, weekly volume, achievements" loading="lazy">
+                <figcaption>Analytics</figcaption>
+            </figure>
+            <figure class="reveal">
+                <img src="https://raw.githubusercontent.com/Sieder2009/GymTracker/master/screenshots/screenshot-exercises.png" alt="Exercise database with muscle activation diagram" loading="lazy">
+                <figcaption>Exercises</figcaption>
+            </figure>
+        </div>
+    </section>
+
+    <section class="section" id="features">
+        <div class="section-header">
+            <span class="eyebrow">Features</span>
+            <h2>What's inside</h2>
+        </div>
+        <div class="feature-grid">
+            <div class="feature-block reveal">
+                <div class="feature-head">
+                    <img src="https://api.iconify.design/lucide:dumbbell.svg?color=%231fa76a" width="22" height="22" alt="">
+                    <h3>Training</h3>
+                </div>
+                <ul>
+                    <li>Plans by weekday or rotation — build your own, import one, or start from eight built-in templates</li>
+                    <li>Guided workouts: set-by-set input, live session timer, RPE tracking, drag-and-drop reordering mid-session</li>
+                    <li>Rest timer on real clock time, not a countdown — stays accurate no matter how long the screen was off</li>
+                    <li>Progressive-overload suggestions after every logged session</li>
+                    <li>Training calendar, workout history, and a progress-photo gallery</li>
+                </ul>
+            </div>
+            <div class="feature-block reveal">
+                <div class="feature-head">
+                    <img src="https://api.iconify.design/lucide:trophy.svg?color=%231fa76a" width="22" height="22" alt="">
+                    <h3>Strength</h3>
+                </div>
+                <ul>
+                    <li>Bench Press / Deadlift / Squat: PR, history, trend chart, plateau detection</li>
+                    <li>A plain-language strength level for every lift (Beginner → Elite), plus Total and DOTS score</li>
+                    <li>Built-in 1RM calculator (Epley) and plate calculator</li>
+                </ul>
+            </div>
+            <div class="feature-block reveal">
+                <div class="feature-head">
+                    <img src="https://api.iconify.design/lucide:bar-chart-3.svg?color=%231fa76a" width="22" height="22" alt="">
+                    <h3>Analytics</h3>
+                </div>
+                <ul>
+                    <li>Its own tab, five sections: Overview, Strength, Volume, Consistency, Achievements</li>
+                    <li>Every number comes from real logged data — the app says so plainly when there isn't enough yet</li>
+                    <li>Four multi-level achievement paths, calculated live from real data</li>
+                </ul>
+            </div>
+            <div class="feature-block reveal">
+                <div class="feature-head">
+                    <img src="https://api.iconify.design/lucide:database.svg?color=%231fa76a" width="22" height="22" alt="">
+                    <h3>Exercise database</h3>
+                </div>
+                <ul>
+                    <li>535 exercises, searchable, sorted by category, loaded live from GitHub with an offline fallback</li>
+                    <li>An illustrated, tappable muscle-activation diagram for every exercise — front/back, male/female</li>
+                    <li>Build your own exercise with the same editor: tap muscles directly on the figure</li>
+                </ul>
+            </div>
+            <div class="feature-block reveal">
+                <div class="feature-head">
+                    <img src="https://api.iconify.design/lucide:settings-2.svg?color=%231fa76a" width="22" height="22" alt="">
+                    <h3>More</h3>
+                </div>
+                <ul>
+                    <li>Apple Health / Health Connect integration</li>
+                    <li>Daily training reminder</li>
+                    <li>Backup &amp; restore via text export or native share — no account, no auto-sync</li>
+                    <li>Custom colors, automatic light/dark mode, 10 languages</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="section section-alt" id="download">
+        <div class="section-header">
+            <span class="eyebrow">Download</span>
+            <h2>Get the app</h2>
+            <p>Every tagged release builds automatically for all four platforms.</p>
+        </div>
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead><tr><th>Platform</th><th>Format</th></tr></thead>
+                <tbody>
+                    <tr><td>Android</td><td>.apk</td></tr>
+                    <tr><td>iOS</td><td>unsigned .ipa</td></tr>
+                    <tr><td>Windows</td><td>installer (.exe) or portable .zip</td></tr>
+                    <tr><td>macOS</td><td>unsigned, unnotarized .zip</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="app-hero-actions" style="margin-top:28px;">
+            <a href="https://github.com/Sieder2009/GymTracker/releases" class="btn btn-primary" target="_blank" rel="noopener">Releases page →</a>
+        </div>
+    </section>
+
+    <section class="section" id="privacy">
+        <div class="privacy-note reveal">
+            <img src="https://api.iconify.design/lucide:shield-check.svg?color=%231fa76a" width="32" height="32" alt="">
+            <p>Everything is stored only on your device. There's no server and no account — the only network calls are loading the exercise database (with an offline fallback) and checking GitHub for new releases, which you can turn off. Backups go out through your OS's native share sheet, only when you choose to send one.</p>
+        </div>
+    </section>
+
+    <section class="section section-alt" id="credits">
+        <div class="section-header">
+            <span class="eyebrow">Credits</span>
+            <h2>Built with</h2>
+        </div>
+        <div class="credits-box">
+            <p>Special thanks to <a href="https://github.com/Plattnericus" target="_blank" rel="noopener">Plattnericus</a> for his contribution to this project.</p>
+            <p>The illustrated body figure in the muscle diagram is based on the SVG body model from <a href="https://github.com/HichamELBSI/react-native-body-highlighter" target="_blank" rel="noopener">react-native-body-highlighter</a> by Hicham ELABBASSI (MIT license, © 2022). The muscle group mapping, activation color scale, hit-testing, and caching are original work for this project.</p>
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <p>© 2024–<span id="year"></span> GYM STATS · <span id="time"></span></p>
+            <div class="footer-links">
+                <a href="../index.html">Home</a>
+                <a href="../training-plans/">Trainingspläne</a>
+                <a href="https://github.com/Sieder2009/GymTracker" target="_blank" rel="noopener">GitHub ↗</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function updateTime() {
+            document.getElementById('time').textContent = new Date().toLocaleTimeString('de-DE');
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+        document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+</body>
+</html>
