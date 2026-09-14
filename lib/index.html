@@ -3,94 +3,377 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../CSS/style.css">
-    <title>CyberSpace</title>
+    <title>GYM STATS | Trainings-Archiv &amp; Fortschritt</title>
+    <meta name="description" content="Alle Trainingspläne, echter Fortschritt in Zahlen und meine App.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../CSS/gym-theme.css">
 </head>
 <body>
-    <div class="matrix-effect" id="matrix"></div>
-    
-    <header>
-        <h1>// HOME_TERMINAL v0.1</h1>
+    <nav class="site-nav">
+        <a href="index.html" class="brand">GYM<span>STATS</span></a>
+        <div class="nav-links">
+            <a href="#fortschritt">Fortschritt</a>
+            <a href="#uebungen">Übungen</a>
+            <a href="gymhub.html">Trainingspläne</a>
+            <a href="#app">App</a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <span class="eyebrow">Trainings-Archiv seit Juli 2024</span>
+        <h1>Jedes Gewicht.<br>Jede Woche. <em>Dokumentiert.</em></h1>
+        <p class="lead">Von 100&nbsp;kg auf 110&nbsp;kg Squat, von 32,5&nbsp;kg auf 37,5&nbsp;kg Trizeps-PR — hier sind alle alten Trainingspläne und der echte Fortschritt dahinter, direkt aus den Trainings-Logs.</p>
+        <div class="hero-actions">
+            <a href="#fortschritt" class="btn btn-primary">Fortschritt ansehen</a>
+            <a href="gymhub.html" class="btn btn-outline">Alle Trainingspläne</a>
+        </div>
     </header>
-    
-    <div class="main-content">
-        <a href="index2.html" class="container">
 
-            <h2>> Games</h2>
-            <p>> 3 Games verfügbar</p>
-            <p>> aktiv</p>
-    </a>
-
-        <a href="index3.html" class="container">
-            <h2>> Personal_Information </h2>
-            <p>> Zugriffsebene: 3</p>
-            <p>< aktiv</p>
-        </a>
-        
-        <a href="index4.html" class="container">
-            <h2>> Medien</h2>
-            <p>> aktiv</p>
-
-        </a>
+    <div class="stat-grid" style="margin-bottom: 72px;">
+        <div class="stat-tile">
+            <span class="stat-label">Squat 1RM</span>
+            <span class="stat-value">110 kg</span>
+            <span class="stat-delta">+10 kg seit Jul 2024</span>
+        </div>
+        <div class="stat-tile">
+            <span class="stat-label">Bench 1RM</span>
+            <span class="stat-value">77,5 kg</span>
+        </div>
+        <div class="stat-tile">
+            <span class="stat-label">Deadlift 1RM</span>
+            <span class="stat-value">125 kg</span>
+        </div>
+        <div class="stat-tile">
+            <span class="stat-label">Trizeps-PR</span>
+            <span class="stat-value">37,5 kg</span>
+            <span class="stat-delta">+5 kg seit Jul 2024</span>
+        </div>
     </div>
-    
-    <footer>
-        <p>> SYSTEM_ZEIT: <span id="time"></span> | © 2025 CYBER_SYSTEMS</p>
-        <div class="login-info">
-            <span> </span>
-            <a href="index.html">> HOME</a>
-            <a href="#">> REGISTRIEREN</a>
+
+    <section class="app-promo" id="app">
+        <div class="app-promo-inner">
+            <div class="app-promo-text">
+                <span class="eyebrow">Meine App</span>
+                <h2>[Name deiner App]</h2>
+                <p>Hier kommt eine kurze Beschreibung hin, was deine App macht und warum sie zu deinem Training dazugehört. Schick mir Name, Beschreibung, Link (Store/GitHub/Website) und optional ein Icon, dann fülle ich diesen Bereich mit den echten Inhalten.</p>
+                <a href="#" class="btn btn-primary">App ansehen →</a>
+            </div>
+            <div class="app-promo-visual" aria-hidden="true">App-Icon / Screenshot hier einfügen</div>
+        </div>
+    </section>
+
+    <section class="section" id="fortschritt">
+        <div class="section-header">
+            <span class="eyebrow">Fortschritt</span>
+            <h2>Der Beweis in Zahlen</h2>
+            <p>Zwei Kennzahlen aus den Trainingsplan-Logs, die zeigen, wie viel sich seit Juli 2024 getan hat.</p>
+        </div>
+
+        <div class="chart-grid">
+            <!-- Chart 1: Squat -->
+            <div class="chart-card">
+                <span class="pr-badge">Rekord</span>
+                <h3>Squat-Fortschritt</h3>
+                <p class="chart-sub">Kniebeuge (Low Bar) · Juli – August 2024</p>
+                <svg viewBox="0 0 600 250" role="img" aria-label="Squat-Fortschritt: 100 Kilogramm am 26. Juli 2024, 110 Kilogramm am 24. August 2024">
+                    <defs>
+                        <linearGradient id="areaFadeSquat" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" style="stop-color:var(--accent);stop-opacity:0.22"/>
+                            <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+                        </linearGradient>
+                    </defs>
+                    <line class="chart-axis-line" x1="60" y1="195" x2="560" y2="195"/>
+                    <path fill="url(#areaFadeSquat)" d="M170,137 L470,79 L470,195 L170,195 Z"/>
+                    <path class="chart-line" d="M170,137 L470,79"/>
+
+                    <text class="chart-label value" x="170" y="119" text-anchor="middle">100 kg</text>
+                    <text class="chart-label muted" x="170" y="213" text-anchor="middle">26. Jul 2024</text>
+
+                    <text class="chart-label value" x="470" y="61" text-anchor="middle">110 kg</text>
+                    <text class="chart-label muted" x="470" y="41" text-anchor="middle" style="fill:var(--good)">+10 kg</text>
+                    <text class="chart-label muted" x="470" y="213" text-anchor="middle">24. Aug 2024</text>
+
+                    <g class="chart-point" tabindex="0" transform="translate(170,137)" data-cx="170" data-cy="137"
+                       data-title="Kniebeuge (Squat)" data-date="26. Juli 2024 · Plan v3.0" data-value="100 kg"
+                       data-detail="Erste 100-kg-Kniebeuge, dokumentiert im Trainingsplan v3.0">
+                        <circle class="ring" r="8"/><circle class="dot" r="5"/>
+                    </g>
+                    <g class="chart-point pr" tabindex="0" transform="translate(470,79)" data-cx="470" data-cy="79"
+                       data-title="Kniebeuge (Squat)" data-date="24. August 2024 · Plan v4.0" data-value="110 kg"
+                       data-detail="Neuer Rekord in Plan v4.0 — gleichzeitig Referenzwert für die 1RM-Prozentrechnung in v7.0">
+                        <circle class="ring" r="9"/><circle class="dot" r="6"/>
+                    </g>
+                </svg>
+                <div class="chart-tooltip" role="status"></div>
+                <details class="table-toggle">
+                    <summary>Als Tabelle anzeigen</summary>
+                    <table class="data-table">
+                        <thead><tr><th>Datum</th><th>Plan</th><th>Squat</th></tr></thead>
+                        <tbody>
+                            <tr><td>26.07.2024</td><td><a href="gym2.html">v3.0</a></td><td>100 kg</td></tr>
+                            <tr><td>24.08.2024</td><td><a href="gym3.html">v4.0</a></td><td>110 kg <span class="badge-pr">Rekord</span></td></tr>
+                        </tbody>
+                    </table>
+                </details>
+            </div>
+
+            <!-- Chart 2: Trizeps -->
+            <div class="chart-card">
+                <span class="pr-badge">PR</span>
+                <h3>Trizeps-Fortschritt</h3>
+                <p class="chart-sub">Trizeps-Extension / -Drücken · Juli – Dezember 2024</p>
+                <svg viewBox="0 0 600 250" role="img" aria-label="Trizeps-Fortschritt von 32,5 Kilogramm im Juli 2024 bis 37,5 Kilogramm Rekord im Dezember 2024, mit einem 40-Kilogramm-Versuch">
+                    <defs>
+                        <linearGradient id="areaFadeTrizeps" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" style="stop-color:var(--accent);stop-opacity:0.22"/>
+                            <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+                        </linearGradient>
+                    </defs>
+                    <line class="chart-axis-line" x1="60" y1="195" x2="560" y2="195"/>
+                    <path fill="url(#areaFadeTrizeps)" d="M60,122 L160,122 L260,98 L360,98 L460,171 L560,74 L560,195 L60,195 Z"/>
+                    <path class="chart-line" d="M60,122 L160,122 L260,98 L360,98 L460,171 L560,74"/>
+                    <line class="chart-attempt" x1="560" y1="74" x2="560" y2="50"/>
+
+                    <text class="chart-label value" x="60" y="106" text-anchor="middle">32,5</text>
+                    <text class="chart-label value" x="160" y="106" text-anchor="middle">32,5</text>
+                    <text class="chart-label value" x="260" y="82" text-anchor="middle">35</text>
+                    <text class="chart-label value" x="360" y="82" text-anchor="middle">35</text>
+                    <text class="chart-label value" x="460" y="188" text-anchor="middle">27,5*</text>
+                    <text class="chart-label value" x="560" y="58" text-anchor="middle">37,5</text>
+                    <text class="chart-label muted" x="560" y="36" text-anchor="middle">40 (Versuch)</text>
+
+                    <text class="chart-label muted" x="60" y="213" text-anchor="middle">v2 · Jul</text>
+                    <text class="chart-label muted" x="160" y="213" text-anchor="middle">v3 · Jul</text>
+                    <text class="chart-label muted" x="260" y="213" text-anchor="middle">v4 · Aug</text>
+                    <text class="chart-label muted" x="360" y="213" text-anchor="middle">v5 · Sep</text>
+                    <text class="chart-label muted" x="460" y="213" text-anchor="middle">v6 · Dez</text>
+                    <text class="chart-label muted" x="560" y="213" text-anchor="middle">v7 · Dez</text>
+
+                    <g class="chart-point" tabindex="0" transform="translate(60,122)" data-cx="60" data-cy="122" data-title="Triceps Extensions" data-date="13. Juli 2024 · Plan v2.0" data-value="32,5 kg" data-detail="Kabelzug-Extension, Top-Satz 32,5 kg × 5">
+                        <circle class="ring" r="8"/><circle class="dot" r="5"/>
+                    </g>
+                    <g class="chart-point" tabindex="0" transform="translate(160,122)" data-cx="160" data-cy="122" data-title="Trizeps Pushdowns" data-date="26. Juli 2024 · Plan v3.0" data-value="32,5 kg" data-detail="32,5 kg × 12 / 9 / 8">
+                        <circle class="ring" r="8"/><circle class="dot" r="5"/>
+                    </g>
+                    <g class="chart-point" tabindex="0" transform="translate(260,98)" data-cx="260" data-cy="98" data-title="Trizeps Extension" data-date="24. August 2024 · Plan v4.0" data-value="35 kg" data-detail="18 Sätze insgesamt, Top-Satz 35 kg">
+                        <circle class="ring" r="8"/><circle class="dot" r="5"/>
+                    </g>
+                    <g class="chart-point" tabindex="0" transform="translate(360,98)" data-cx="360" data-cy="98" data-title="Trizeps Extension" data-date="12. September 2024 · Plan v5.0" data-value="35 kg" data-detail="Gleiches Gewicht, aber 21 statt 18 Sätze — mehr Volumen">
+                        <circle class="ring" r="8"/><circle class="dot" r="5"/>
+                    </g>
+                    <g class="chart-point variant" tabindex="0" transform="translate(460,171)" data-cx="460" data-cy="171" data-title="Trizeps Overhead Extensions*" data-date="6. Dezember 2024 · Plan v6.0" data-value="27,5 kg" data-detail="*Andere Übungsvariante (Einzelgewicht überkopf statt Kabelzug) — Gewicht nicht 1:1 vergleichbar">
+                        <circle class="ring" r="8"/><circle class="dot" r="5"/>
+                    </g>
+                    <g class="chart-point pr" tabindex="0" transform="translate(560,74)" data-cx="560" data-cy="74" data-title="Trizepsdrücken" data-date="Dezember 2024 · Plan v7.0" data-value="37,5 kg" data-detail="Als Rekord markiert (37,5 kg × 10/9/8). 40 kg danach dreimal versucht, nicht durchgängig sauber — 42,5 kg+ fehlgeschlagen">
+                        <circle class="ring" r="9"/><circle class="dot" r="6"/>
+                    </g>
+                </svg>
+                <div class="chart-tooltip" role="status"></div>
+                <p class="chart-footnote">* v6.0 nutzt Overhead Extensions statt Kabelzug — andere Übung, Gewichte nicht direkt vergleichbar.</p>
+                <details class="table-toggle">
+                    <summary>Als Tabelle anzeigen</summary>
+                    <table class="data-table">
+                        <thead><tr><th>Datum</th><th>Plan</th><th>Übung</th><th>Top-Gewicht</th></tr></thead>
+                        <tbody>
+                            <tr><td>13.07.2024</td><td><a href="gym.html">v2.0</a></td><td>Triceps Extensions</td><td>32,5 kg</td></tr>
+                            <tr><td>26.07.2024</td><td><a href="gym2.html">v3.0</a></td><td>Trizeps Pushdowns</td><td>32,5 kg</td></tr>
+                            <tr><td>24.08.2024</td><td><a href="gym3.html">v4.0</a></td><td>Trizeps Extension</td><td>35 kg</td></tr>
+                            <tr><td>12.09.2024</td><td><a href="gym4.html">v5.0</a></td><td>Trizeps Extension</td><td>35 kg (21 Sätze)</td></tr>
+                            <tr><td>06.12.2024</td><td><a href="gym5.html">v6.0</a></td><td>Overhead Extensions*</td><td>27,5 kg</td></tr>
+                            <tr><td>Dez 2024</td><td><a href="gym6.html">v7.0</a></td><td>Trizepsdrücken</td><td>37,5 kg <span class="badge-pr">PR</span></td></tr>
+                        </tbody>
+                    </table>
+                </details>
+            </div>
+        </div>
+    </section>
+
+    <section class="section section-alt" id="uebungen">
+        <div class="section-header">
+            <span class="eyebrow">Übungs-Fortschritt</span>
+            <h2>Fortschritt je Übung</h2>
+            <p>Jeder Trainingsplan im direkten Vergleich — Top-Gewicht bei Trizeps und Squat, mit Link zum jeweiligen Original-Plan.</p>
+        </div>
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Datum</th>
+                        <th>Plan</th>
+                        <th>Trizeps-Übung</th>
+                        <th>Squat</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>13.07.2024</td>
+                        <td><a href="gym.html">v2.0 · Grundlagen</a></td>
+                        <td>Triceps Extensions — 32,5 kg</td>
+                        <td>–</td>
+                    </tr>
+                    <tr>
+                        <td>26.07.2024</td>
+                        <td><a href="gym2.html">v3.0 · Intensivierung</a></td>
+                        <td>Trizeps Pushdowns — 32,5 kg</td>
+                        <td>100 kg</td>
+                    </tr>
+                    <tr>
+                        <td>24.08.2024</td>
+                        <td><a href="gym3.html">v4.0 · Volumenmaximierung</a></td>
+                        <td>Trizeps Extension — 35 kg</td>
+                        <td>110 kg <span class="badge-pr">Rekord</span></td>
+                    </tr>
+                    <tr>
+                        <td>12.09.2024</td>
+                        <td><a href="gym4.html">v5.0 · Strukturierung</a></td>
+                        <td>Trizeps Extension — 35 kg (21 Sätze)</td>
+                        <td>–</td>
+                    </tr>
+                    <tr>
+                        <td>06.12.2024</td>
+                        <td><a href="gym5.html">v6.0 · Spezialisierung</a></td>
+                        <td>Overhead Extensions* — 27,5 kg</td>
+                        <td>–</td>
+                    </tr>
+                    <tr>
+                        <td>Dez 2024</td>
+                        <td><a href="gym6.html">v7.0 · Detaillierung</a></td>
+                        <td>Trizepsdrücken — 37,5 kg <span class="badge-pr">PR</span></td>
+                        <td>110 kg <span style="color:var(--text-muted); font-weight:400;">(1RM-Basis)</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="chart-footnote" style="text-align:center; margin-top:16px;">* v6.0 nutzt Overhead Extensions statt Kabelzug-Pushdowns — andere Übungsvariante, Gewichte nicht 1:1 vergleichbar. „–" = für diese Übung in diesem Plan nicht separat geloggt.</p>
+    </section>
+
+    <section class="section" id="plaene">
+        <div class="section-header">
+            <span class="eyebrow">Archiv</span>
+            <h2>Alle Trainingspläne</h2>
+            <p>Sechs Versionen seit Juli 2024 — vom ersten Push/Pull/Legs-Split bis zum Powerlifting-Protokoll.</p>
+        </div>
+        <div class="plan-grid">
+            <div class="plan-card">
+                <div class="plan-top"><span class="version-badge">v2.0</span><span class="plan-status">Archiviert</span></div>
+                <h4>Grundlagen</h4>
+                <span class="plan-date">13. Juli 2024</span>
+                <p class="plan-desc">Erster strukturierter Plan: klassischer Push/Pull/Legs-Split, 3 Tage/Woche.</p>
+                <a href="gym.html" class="plan-link">Plan ansehen →</a>
+            </div>
+            <div class="plan-card">
+                <div class="plan-top"><span class="version-badge">v3.0</span><span class="plan-status">Archiviert</span></div>
+                <h4>Intensivierung</h4>
+                <span class="plan-date">26. Juli 2024</span>
+                <p class="plan-desc">6-Tage-Split mit Heavy- und Hypertrophie-Tagen, erste 100-kg-Kniebeuge.</p>
+                <a href="gym2.html" class="plan-link">Plan ansehen →</a>
+            </div>
+            <div class="plan-card">
+                <div class="plan-top"><span class="version-badge">v4.0</span><span class="plan-status">Archiviert</span></div>
+                <h4>Volumenmaximierung</h4>
+                <span class="plan-date">24. August 2024</span>
+                <p class="plan-desc">332 Sätze/Woche Extremvolumen, neuer 110-kg-Squat-Rekord.</p>
+                <a href="gym3.html" class="plan-link">Plan ansehen →</a>
+            </div>
+            <div class="plan-card">
+                <div class="plan-top"><span class="version-badge">v5.0</span><span class="plan-status">Archiviert</span></div>
+                <h4>Strukturierung</h4>
+                <span class="plan-date">12. September 2024</span>
+                <p class="plan-desc">3-Tage-Split mit klarer Heavy/Hypertrophie-Trennung und Periodisierung.</p>
+                <a href="gym4.html" class="plan-link">Plan ansehen →</a>
+            </div>
+            <div class="plan-card">
+                <div class="plan-top"><span class="version-badge">v6.0</span><span class="plan-status">Archiviert</span></div>
+                <h4>Spezialisierung</h4>
+                <span class="plan-date">6. Dezember 2024</span>
+                <p class="plan-desc">Powerlifting-Fokus: 5 Tage/Woche, 1RM-basierte Progression.</p>
+                <a href="gym5.html" class="plan-link">Plan ansehen →</a>
+            </div>
+            <div class="plan-card">
+                <div class="plan-top"><span class="version-badge">v7.0</span><span class="plan-status current">Aktuell</span></div>
+                <h4>Detaillierung</h4>
+                <span class="plan-date">Dezember 2024</span>
+                <p class="plan-desc">Detailliertes Powerlifting-Protokoll: Squat 110, Bench 77,5, Deadlift 125 kg.</p>
+                <a href="gym6.html" class="plan-link">Plan ansehen →</a>
+            </div>
+        </div>
+        <div class="archive-cta">
+            <a href="gymhub.html" class="btn btn-outline">Komplettes Archiv mit Timeline &amp; Statistiken →</a>
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <p>© 2024–<span id="year"></span> GYM STATS · <span id="time"></span></p>
+            <div class="footer-links">
+                <a href="gymhub.html">Trainingspläne</a>
+                <a href="#app">App</a>
+                <a href="terminal.html">Sonstiges (Games, Medien) →</a>
+            </div>
         </div>
     </footer>
 
     <script>
-        // Matrix-Effekt
-        const canvas = document.createElement('canvas');
-        canvas.className = 'matrix-effect';
-        document.body.appendChild(canvas);
-        
-        const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        
-        const chars = "01";
-        const fontSize = 14;
-        const columns = canvas.width / fontSize;
-        const drops = [];
-        
-        for(let i = 0; i < columns; i++) {
-            drops[i] = 1;
-        }
-        
-        function drawMatrix() {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            ctx.fillStyle = '#0f0';
-            ctx.font = fontSize + 'px monospace';
-            
-            for(let i = 0; i < drops.length; i++) {
-                const text = chars.charAt(Math.floor(Math.random() * chars.length));
-                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-                
-                if(drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                    drops[i] = 0;
-                }
-                
-                drops[i]++;
-            }
-        }
-        
-        setInterval(drawMatrix, 33);
-        
-        // Live-Uhr
         function updateTime() {
-            const now = new Date();
-            document.getElementById('time').textContent = now.toLocaleTimeString();
+            document.getElementById('time').textContent = new Date().toLocaleTimeString('de-DE');
         }
-        
         setInterval(updateTime, 1000);
         updateTime();
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Chart hover / focus tooltips
+        document.querySelectorAll('.chart-card').forEach(function (card) {
+            var tooltip = card.querySelector('.chart-tooltip');
+            var svg = card.querySelector('svg');
+            if (!tooltip || !svg) return;
+
+            card.querySelectorAll('.chart-point').forEach(function (pt) {
+                function show() {
+                    var title = pt.getAttribute('data-title') || '';
+                    var date = pt.getAttribute('data-date') || '';
+                    var value = pt.getAttribute('data-value') || '';
+                    var detail = pt.getAttribute('data-detail') || '';
+
+                    tooltip.innerHTML = '';
+                    var t = document.createElement('div');
+                    t.className = 'tt-title';
+                    t.textContent = value + ' — ' + title;
+                    var s1 = document.createElement('div');
+                    s1.className = 'tt-sub';
+                    s1.textContent = date;
+                    tooltip.appendChild(t);
+                    tooltip.appendChild(s1);
+                    if (detail) {
+                        var s2 = document.createElement('div');
+                        s2.className = 'tt-sub';
+                        s2.style.marginTop = '4px';
+                        s2.style.maxWidth = '220px';
+                        s2.textContent = detail;
+                        tooltip.appendChild(s2);
+                    }
+
+                    var cx = parseFloat(pt.getAttribute('data-cx'));
+                    var cy = parseFloat(pt.getAttribute('data-cy'));
+                    var svgPt = svg.createSVGPoint();
+                    svgPt.x = cx;
+                    svgPt.y = cy;
+                    var screenPt = svgPt.matrixTransform(svg.getScreenCTM());
+                    var cardRect = card.getBoundingClientRect();
+                    tooltip.style.left = (screenPt.x - cardRect.left) + 'px';
+                    tooltip.style.top = (screenPt.y - cardRect.top) + 'px';
+                    tooltip.classList.add('visible');
+                }
+                function hide() {
+                    tooltip.classList.remove('visible');
+                }
+                pt.addEventListener('pointerenter', show);
+                pt.addEventListener('focus', show);
+                pt.addEventListener('pointerleave', hide);
+                pt.addEventListener('blur', hide);
+            });
+        });
     </script>
 </body>
 </html>
