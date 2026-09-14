@@ -8,8 +8,15 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/gym-theme.css">
+    <script src="../js/site-effects.js" defer></script>
 </head>
 <body>
+    <div class="tear-intro" id="tearIntro" aria-hidden="true">
+        <div class="tear-half tear-top">
+            <span class="tear-mark">GYM<em>STATS</em></span>
+        </div>
+        <div class="tear-half tear-bottom"></div>
+    </div>
     <nav class="site-nav">
         <a href="../index.html" class="brand">GYM<span>STATS</span></a>
         <div class="nav-links">
@@ -28,28 +35,28 @@
 
             <div class="terminal-body">
                 <div class="stats-bar">
-                    <div class="stat">
+                    <div class="stat reveal">
                         <span class="stat-label">MAX_BANKDRÜCKEN:</span>
                         <span class="stat-value">75kg</span>
                     </div>
-                    <div class="stat">
+                    <div class="stat reveal">
                         <span class="stat-label">MAX_SQUAT:</span>
                         <span class="stat-value">100kg</span>
                     </div>
-                    <div class="stat">
+                    <div class="stat reveal">
                         <span class="stat-label">MAX_DEADLIFT:</span>
                         <span class="stat-value">120kg</span>
                     </div>
-                    <div class="stat">
+                    <div class="stat reveal">
                         <span class="stat-label">PRINZIP:</span>
                         <span class="stat-value">HEAVY_NOT_TO_FAILURE</span>
                     </div>
                 </div>
                 
-                <div class="workout-section">
+                <div class="workout-section reveal">
                     <h3>MONTAG – PULL HEAVY · 90min</h3>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Kreuzheben <span class="tag">4 SETZE @82-88%</span></h4>
                         <div class="set-grid">
                             <div class="set">90kg ×1 // 5.4.3.2</div>
@@ -58,14 +65,14 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Klimmzüge (gewichtet) <span class="tag">3 SETZE</span></h4>
                         <div class="set-grid">
                             <div class="set">+20kg ×4 // 5.4.3-6.4.3-6.5.4-7.5.4</div>
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>T-Bar Row <span class="tag">3 SETZE</span></h4>
                         <div class="set-grid">
                             <div class="set">20kg ×3 // 8.6.5 9.8.7-10.9.8</div>
@@ -73,7 +80,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Langhantel-Rudern (Yates) <span class="tag">3 SETZE</span></h4>
                         <div class="set-grid">
                             <div class="set">60kg ×2 // 7.6.5-8.7.7</div>
@@ -82,7 +89,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Face Pulls <span class="tag">3 SETZE V</span></h4>
                         <div class="set-grid">
                             <div class="set">30kg ×2 // 13.10.7-16.15.14</div>
@@ -91,7 +98,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Curls (Langhantel) <span class="tag">3 SETZE V</span></h4>
                         <div class="set-grid">
                             <div class="set">30kg ×2 // 11.9.7 11.10.9</div>
@@ -101,10 +108,10 @@
                     </div>
                 </div>
                 
-                <div class="workout-section">
+                <div class="workout-section reveal">
                     <h3>DIENSTAG – PUSH HEAVY · 85min</h3>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Bankdrücken <span class="tag">4 SETZE @80-85%</span></h4>
                         <div class="set-grid">
                             <div class="set">60kg ×1 // 6.x.x.x</div>
@@ -113,7 +120,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Overhead Press (stehend) <span class="tag">3 SETZE</span></h4>
                         <div class="set-grid">
                             <div class="set">30kg ×2 // x.x.x-8.8.8</div>
@@ -121,7 +128,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Schrägbankdrücken KH <span class="tag">3 SETZE</span></h4>
                         <div class="set-grid">
                             <div class="set">26kg ×2 // 8.7.6-7.5.4(nach Dips)</div>
@@ -129,7 +136,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Dips (gewichtet) <span class="tag">3 SETZE</span></h4>
                         <div class="set-grid">
                             <div class="set">+15kg ×2 // 8.6.5-9.7.6</div>
@@ -137,7 +144,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Skull Crusher <span class="tag">3 SETZE V</span></h4>
                         <div class="set-grid">
                             <div class="set">32.5kg ×4 // 9.8.7-9.8.7-10.9.8-x.x.x</div>
@@ -145,10 +152,10 @@
                     </div>
                 </div>
                 
-                <div class="workout-section">
+                <div class="workout-section reveal">
                     <h3>MITTWOCH – BEINE HYPERTROPHIE · 80min</h3>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Frontkniebeuge/Hackenschmidt <span class="tag">3 SETZE</span></h4>
                         <div class="set-grid">
                             <div class="set">90kg ×1 // 10.9.8</div>
@@ -157,7 +164,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Bulgarian Split Squats <span class="tag">3 SETZE</span></h4>
                         <div class="set-grid">
                             <div class="set">16kg ×1 // 12.12.12</div>
@@ -165,7 +172,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Beinbeuger liegend <span class="tag">3 SETZE</span></h4>
                         <div class="set-grid">
                             <div class="set">36kg ×1 // 14.13.12</div>
@@ -175,7 +182,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Glute Bridges <span class="tag">3 SETZE</span></h4>
                         <div class="set-grid">
                             <div class="set">60kg ×2 // 9.8.7-10.10.10</div>
@@ -184,7 +191,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Wadenheben (Beinpresse) <span class="tag">3 SETZE V</span></h4>
                         <div class="set-grid">
                             <div class="set">120kg ×1 // 15.14.14</div>
@@ -192,7 +199,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Core <span class="tag">3 SETZE V</span></h4>
                         <div class="set-grid">
                             <div class="set">Hanging Leg Raises ×2 // 5.4.3-6.4.3</div>
@@ -201,10 +208,10 @@
                     </div>
                 </div>
                 
-                <div class="workout-section">
+                <div class="workout-section reveal">
                     <h3>DONNERSTAG – PULL HYPERTROPHIE · 75min</h3>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Latzug eng/supiniert <span class="tag">4 SETZE</span></h4>
                         <div class="set-grid">
                             <div class="set">70kg ×2 // 12.11.9.7-12.12.10.9</div>
@@ -212,7 +219,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Rudern am Kabel <span class="tag">3 SETZE</span></h4>
                         <div class="set-grid">
                             <div class="set">60kg ×1 // 12.12.12</div>
@@ -221,7 +228,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Reverse Flys <span class="tag">3 SETZE</span></h4>
                         <div class="set-grid">
                             <div class="set">15kg ×1 // 15.15.15</div>
@@ -230,7 +237,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Shrugs <span class="tag">3 SETZE</span></h4>
                         <div class="set-grid">
                             <div class="set">KH 22kg ×1 // 15.12.11</div>
@@ -240,7 +247,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Konzentrationscurl <span class="tag">3 SETZE</span></h4>
                         <div class="set-grid">
                             <div class="set">12kg ×1 // 15.14.12</div>
@@ -248,7 +255,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Preacher Curls (SZ) <span class="tag">2 SETZE</span></h4>
                         <div class="set-grid">
                             <div class="set">27.5kg ×3 // 15.12-15.14-20.13</div>
@@ -258,10 +265,10 @@
                     </div>
                 </div>
                 
-                <div class="workout-section">
+                <div class="workout-section reveal">
                     <h3>FREITAG – PUSH HYPERTROPHIE · 70min</h3>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Schrägbankdrücken KH <span class="tag">4 SETZE</span></h4>
                         <div class="set-grid">
                             <div class="set">26kg ×2 // 10.9.8.7-10.9.9.7</div>
@@ -269,7 +276,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Kurzhantel-Schulterdrücken <span class="tag">3 SETZE</span></h4>
                         <div class="set-grid">
                             <div class="set">16kg ×1 // 10.10.10</div>
@@ -278,7 +285,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Brustfliegende <span class="tag">3 SETZE</span></h4>
                         <div class="set-grid">
                             <div class="set">27.5kg ×2 // 9.8.7-15.13.10</div>
@@ -286,7 +293,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Seitheben <span class="tag">3 SETZE V</span></h4>
                         <div class="set-grid">
                             <div class="set">10kg ×2 // 17.16.13-18.15.13</div>
@@ -294,7 +301,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Trizeps Pushdowns <span class="tag">3 SETZE V</span></h4>
                         <div class="set-grid">
                             <div class="set">30kg ×2 // 17.13.11-20.13.10</div>
@@ -302,7 +309,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Overhead-Extensions <span class="tag">2 SETZE V</span></h4>
                         <div class="set-grid">
                             <div class="set">17.5kg ×2 // 15.14-20.12</div>
@@ -311,10 +318,10 @@
                     </div>
                 </div>
                 
-                <div class="workout-section">
+                <div class="workout-section reveal">
                     <h3>SAMSTAG – BEINE HEAVY · 85min</h3>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Kniebeuge (Low Bar) <span class="tag">4 SETZE @80-85%</span></h4>
                         <div class="set-grid">
                             <div class="set">85kg ×1 // 6.6.6.6</div>
@@ -323,7 +330,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Beinpresse (schwer) <span class="tag">3 SETZE</span></h4>
                         <div class="set-grid">
                             <div class="set">140kg ×1 // 8.8.8</div>
@@ -331,7 +338,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>RDLs <span class="tag">3 SETZE</span></h4>
                         <div class="set-grid">
                             <div class="set">100kg ×1 // 8.8.8</div>
@@ -339,7 +346,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Beinbeuger Maschine <span class="tag">3 SETZE</span></h4>
                         <div class="set-grid">
                             <div class="set">39kg ×1 // 12.12.12</div>
@@ -347,7 +354,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Wadenheben (Beinpresse) <span class="tag">3 SETZE V</span></h4>
                         <div class="set-grid">
                             <div class="set">120kg ×1 // 15.14.14</div>

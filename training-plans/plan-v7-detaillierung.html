@@ -8,8 +8,15 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/gym-theme.css">
+    <script src="../js/site-effects.js" defer></script>
 </head>
 <body>
+    <div class="tear-intro" id="tearIntro" aria-hidden="true">
+        <div class="tear-half tear-top">
+            <span class="tear-mark">GYM<em>STATS</em></span>
+        </div>
+        <div class="tear-half tear-bottom"></div>
+    </div>
     <nav class="site-nav">
         <a href="../index.html" class="brand">GYM<span>STATS</span></a>
         <div class="nav-links">
@@ -31,17 +38,17 @@
                     <div class="max-stats">
                         <h3>1RM-Maximalwerte</h3>
                         <div class="max-grid">
-                            <div class="max-item squat">
+                            <div class="max-item squat reveal">
                                 <span class="max-label">SQUAT:</span>
                                 <span class="max-value">110 kg</span>
                                 <span class="max-percentage">100%</span>
                             </div>
-                            <div class="max-item bench">
+                            <div class="max-item bench reveal">
                                 <span class="max-label">BENCH:</span>
                                 <span class="max-value">77.5 kg</span>
                                 <span class="max-percentage">100%</span>
                             </div>
-                            <div class="max-item deadlift">
+                            <div class="max-item deadlift reveal">
                                 <span class="max-label">DEADLIFT:</span>
                                 <span class="max-value">125 kg</span>
                                 <span class="max-percentage">100%</span>
@@ -52,23 +59,23 @@
                     <div class="program-structure">
                         <h3>Trainingsstruktur</h3>
                         <div class="structure-grid">
-                            <div class="day-card">
+                            <div class="day-card reveal">
                                 <span class="day-number">TAG 1</span>
                                 <span class="day-focus">Schwer Squat + Bench</span>
                             </div>
-                            <div class="day-card">
+                            <div class="day-card reveal">
                                 <span class="day-number">TAG 2</span>
                                 <span class="day-focus">Deadlift + Accessory</span>
                             </div>
-                            <div class="day-card">
+                            <div class="day-card reveal">
                                 <span class="day-number">TAG 3</span>
                                 <span class="day-focus">Volumen Bench + Rücken</span>
                             </div>
-                            <div class="day-card">
+                            <div class="day-card reveal">
                                 <span class="day-number">TAG 4</span>
                                 <span class="day-focus">Squat Volumen + Posterior</span>
                             </div>
-                            <div class="day-card">
+                            <div class="day-card reveal">
                                 <span class="day-number">TAG 5</span>
                                 <span class="day-focus">Bench Intensität + Oberkörper Push</span>
                             </div>
@@ -76,10 +83,10 @@
                     </div>
                 </div>
                 
-                <div class="workout-section">
+                <div class="workout-section reveal">
                     <h3>Tag 1 — Schwer: Squat + Bench</h3>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Squat 3×3 @ 77.5kg (70% 1RM)</h4>
                         <div class="percent-label">PROGRESSIVE_WARMUP:</div>
                         <div class="set-grid">
@@ -101,7 +108,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Bench 4×3 @ 55kg (70% 1RM)</h4>
                         <div class="percent-label">PROGRESSIVE_WARMUP:</div>
                         <div class="set-grid">
@@ -122,7 +129,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Beinpresse 3×10</h4>
                         <div class="set-grid">
                             <div class="set">150kg ×1 // 10.10.10</div>
@@ -135,14 +142,14 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Belt Squat 3×10</h4>
                         <div class="set-grid">
                             <div class="set note">EXERCISE_LOGGED</div>
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Trizepsdrücken 3×12</h4>
                         <div class="set-grid">
                             <div class="set">30kg ×1 // 12.12.12</div>
@@ -158,10 +165,10 @@
                     </div>
                 </div>
                 
-                <div class="workout-section">
+                <div class="workout-section reveal">
                     <h3>Tag 2 — Deadlift + Accessory</h3>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Deadlift 3×3 @ 87.5kg (70% 1RM)</h4>
                         <div class="percent-label">PROGRESSIVE_WARMUP:</div>
                         <div class="set-grid">
@@ -183,7 +190,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Pausen-Squat 3×5 @ 65kg (60% 1RM) 2 sec</h4>
                         <div class="set-grid compact">
                             <div class="set">65kg ×1 // 5.5.4</div>
@@ -201,7 +208,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Rumänisches Kreuzheben 3×8</h4>
                         <div class="set-grid compact">
                             <div class="set">90kg ×1 // 8.8.8</div>
@@ -218,7 +225,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Bauch/Core 3×15</h4>
                         <div class="set-grid">
                             <div class="set">Ab Roller ×7 // 11.10.9 12.10.9 0.0.0 14.11.10 18.15.14 10.7.5 11.7.6</div>
@@ -227,10 +234,10 @@
                     </div>
                 </div>
                 
-                <div class="workout-section">
+                <div class="workout-section reveal">
                     <h3>Tag 3 — Volumen: Bench + Rücken</h3>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Bench 3×6 @ 50kg (65% 1RM)</h4>
                         <div class="set-grid">
                             <div class="set">50kg ×1 // 6.6.6.6.6.6</div>
@@ -248,7 +255,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Schrägbank KH-Drücken 3×10</h4>
                         <div class="set-grid">
                             <div class="set">24kg ×1 // 10.10.7</div>
@@ -261,7 +268,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Klimmzüge 4×AMRAP</h4>
                         <div class="set-grid">
                             <div class="set highlight">+15kg ×10 // 6.5.4.3 7.6.5.4 7.6.5.5 x.x.x.x 7.6.5.4 8.6.4.3 9.7.6.5 9.8.7.4 9.8.7.6 10.7.6.5</div>
@@ -272,7 +279,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Ein-armig Rudern 4×10</h4>
                         <div class="set-grid">
                             <div class="set">32kg ×1 // 10.10.9.8</div>
@@ -286,10 +293,10 @@
                     </div>
                 </div>
                 
-                <div class="workout-section">
+                <div class="workout-section reveal">
                     <h3>Tag 4 — Squat-Volumen + Posterior</h3>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Squat 3×6 @ 72.5kg (65% 1RM)</h4>
                         <div class="set-grid">
                             <div class="set">72.5kg ×1 // 6.6.6.6</div>
@@ -308,7 +315,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Defizit-Deadlift 3×5 @ 80kg (65% 1RM)</h4>
                         <div class="set-grid">
                             <div class="set">80kg ×1 // 5.5.5</div>
@@ -326,7 +333,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Hip Thrust 3×10</h4>
                         <div class="set-grid">
                             <div class="set">100kg ×1 // 10.10.10</div>
@@ -339,7 +346,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Bauch/Core 3×20</h4>
                         <div class="set-grid">
                             <div class="set">Ab Roller ×5 // 16.11.10 17.12.10 20.15.13 9.8.7 10.9.8</div>
@@ -348,10 +355,10 @@
                     </div>
                 </div>
                 
-                <div class="workout-section">
+                <div class="workout-section reveal">
                     <h3>Tag 5 — Bench-Intensität + Oberkörper Push</h3>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Bench 3×2 @ 57.5kg</h4>
                         <div class="set-grid">
                             <div class="set">57.5kg ×1 // 4.4.4.4.4.4</div>
@@ -365,7 +372,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Overheadpress 4×6 @ 50kg (65% 1RM)</h4>
                         <div class="set-grid">
                             <div class="set">42.5kg ×4 // 6.5.4.3 7.6.4.4 5.4.4.3 6.5.4.3</div>
@@ -374,7 +381,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Dips 3×10</h4>
                         <div class="set-grid">
                             <div class="set">+10kg ×3 // 11.10.8 12.11.10 15.12.10</div>
@@ -385,7 +392,7 @@
                         </div>
                     </div>
                     
-                    <div class="exercise">
+                    <div class="exercise reveal">
                         <h4>Bizepscurls 3×12</h4>
                         <div class="set-grid">
                             <div class="set">18kg ×4 // 7.6.5 10.9.8 11.10.8 12.11.10</div>
