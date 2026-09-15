@@ -31,6 +31,24 @@
   --radius: 10px;
   --radius-sm: 6px;
   --container: 1180px;
+
+  /* ---------- Cinematic FX — central tuning knobs ----------
+     Turn any effect off/down site-wide by editing these, or the
+     matching FX.* flags in js/site-effects.js. See the "Cinematic
+     effects system" block near the end of this file for details. */
+  --fx-duration: 850ms;          /* standard reveal duration */
+  --fx-duration-fast: 600ms;     /* buttons, small UI moves */
+  --fx-duration-slow: 1100ms;    /* section-level scene cuts */
+  --fx-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --fx-distance: 100px;          /* bold/section-level slide distance */
+  --fx-distance-sm: 26px;        /* card/gentle-tier rise distance */
+  --fx-blur: 6px;                /* blur-in amount for bold reveals */
+  --fx-stagger: 90ms;            /* per-item stagger step (cards, lists) */
+  --fx-stagger-cap: 8;           /* stagger delay stops growing after N items */
+  --fx-tilt-max: 9deg;           /* max card tilt toward pointer */
+  --fx-grain-opacity: 0.04;      /* film grain overlay strength */
+  --fx-vignette-opacity: 0.5;    /* hero edge vignette strength */
+  --fx-kenburns-duration: 22s;   /* hero background slow zoom */
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -71,10 +89,28 @@ h1, h2, h3, h4 {
   justify-content: space-between;
   gap: 16px;
   padding: 16px 24px;
-  background: rgba(13, 13, 13, 0.88);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--border);
+  background: rgba(13, 13, 13, 0.5);
+  backdrop-filter: blur(0px);
+  border-bottom: 1px solid transparent;
+  transition:
+    transform var(--fx-duration) var(--fx-ease),
+    background 0.35s ease,
+    backdrop-filter 0.35s ease,
+    padding 0.35s ease,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
 }
+/* Section 10: glass nav — gains blur/shadow once you've scrolled past the hero */
+.site-nav.nav-glass {
+  padding: 11px 24px;
+  background: rgba(13, 13, 13, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom-color: var(--border);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+}
+/* Section 10: nav slides away on scroll-down, returns on scroll-up */
+.site-nav.nav-hidden { transform: translateY(-100%); }
 
 .site-nav .brand {
   font-family: var(--font-display);
@@ -104,6 +140,9 @@ h1, h2, h3, h4 {
 
 /* ---------- Buttons ---------- */
 .btn {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -115,7 +154,7 @@ h1, h2, h3, h4 {
   text-transform: uppercase;
   cursor: pointer;
   border: 1px solid transparent;
-  transition: transform 0.12s ease, background 0.15s ease, border-color 0.15s ease;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), background 0.15s ease, border-color 0.15s ease;
 }
 .btn:hover { transform: translateY(-1px); }
 .btn-primary { background: var(--accent); color: #fff; }
@@ -126,8 +165,11 @@ h1, h2, h3, h4 {
 
 /* ---------- Hero ---------- */
 .hero {
+  position: relative;
+  overflow: hidden;
   padding: 88px 24px 64px;
   text-align: center;
+  isolation: isolate;
 }
 .hero .eyebrow {
   display: inline-block;
@@ -446,7 +488,7 @@ table.data-table td a:hover { text-decoration: underline; }
   gap: 10px;
   transition: border-color 0.15s ease, transform 0.15s ease;
 }
-.plan-card:hover { border-color: var(--border-strong); transform: translateY(-2px); }
+.plan-card:hover { border-color: var(--border-strong); }
 .plan-card .plan-top { display: flex; justify-content: space-between; align-items: center; }
 .plan-card .version-badge {
   font-family: var(--font-display);
@@ -594,19 +636,16 @@ table.data-table td a:hover { text-decoration: underline; }
 .percentage-indicator { color: var(--text-muted); font-size: 0.9em; margin-left: 4px; }
 
 /* ---------- Timeline (gymhub) ---------- */
-.timeline-section { margin-top: 44px; }
-.timeline { display: flex; flex-direction: column; gap: 4px; margin-top: 18px; }
-.timeline-item {
-  display: grid;
-  grid-template-columns: 130px 1fr;
-  gap: 20px;
-  padding: 14px 16px;
-  border-left: 2px solid var(--border-strong);
-  cursor: pointer;
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  transition: background 0.15s ease, border-color 0.15s ease;
+.timeline-section {
+  max-width: var(--container);
+  margin: 56px auto 0;
+  padding: 0 24px;
 }
-.timeline-item:hover { background: var(--surface-2); border-left-color: var(--accent); }
+.timeline-section h3 { text-align: center; margin-bottom: 6px; }
+/* .timeline / .timeline-item (the old vertical list) were replaced by the
+   .filmstrip-* pinned horizontal reel — see section [6] below. The inner
+   .timeline-date / .timeline-content classes are reused as-is inside each
+   filmstrip frame, so they stay here. */
 .timeline-date { font-weight: 700; color: var(--accent); font-size: 0.82rem; }
 .timeline-content h4 { font-size: 0.95rem; text-transform: none; font-family: var(--font-body); font-weight: 700; margin-bottom: 3px; }
 .timeline-content p { font-size: 0.82rem; color: var(--text-muted); }
@@ -845,80 +884,183 @@ main.main-content { padding: 40px 24px 8px; }
 }
 
 /* ==========================================================================
-   Intro: torn-paper reveal
-   Two full-viewport sheets share one jagged seam (clip-path), so they tile
-   perfectly until JS adds .tearing, which rips them apart via keyframes.
+   CINEMATIC EFFECTS SYSTEM
+   Central tuning lives in two places: the --fx-* custom properties in
+   :root at the top of this file, and the FX config object at the top of
+   js/site-effects.js. Each block below is labeled with the spec section
+   it implements — flip the matching FX.* flag off to disable it cleanly.
    ========================================================================== */
-.tear-intro {
+
+/* ---------- [1] Cinematic intro — letterbox bars ----------
+   Two fixed halves (id="cinemaIntro" in every page's <body>) meet at the
+   vertical center on load, framing the brand mark / countdown. JS adds
+   .cinema-opening once the hold finishes (or instantly on click, or
+   skips straight past this whole block if already seen this session /
+   prefers-reduced-motion), sliding the bars off-screen to free the page. */
+.cinema-intro {
   position: fixed;
   inset: 0;
   z-index: 999;
-  pointer-events: none;
+  cursor: pointer;
 }
-.tear-half {
+.cinema-bar {
   position: fixed;
-  inset: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
   background:
     radial-gradient(circle at 20% 15%, rgba(255, 61, 31, 0.10), transparent 45%),
-    var(--surface);
-  will-change: transform, opacity;
+    #070707;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  will-change: transform;
 }
-.tear-half::after {
+.cinema-bar::after {
   content: "";
   position: absolute;
   inset: 0;
   opacity: 0.05;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
-.tear-top {
-  clip-path: polygon(0% 0%, 100% 0%, 100% 47%, 93% 52%, 86% 44%, 79% 55%, 72% 46%, 65% 51%, 58% 43%, 51% 53%, 44% 47%, 37% 56%, 30% 45%, 23% 52%, 16% 44%, 9% 54%, 0% 48%);
-  filter: drop-shadow(0 16px 18px rgba(0, 0, 0, 0.55));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-bottom: 12vh;
-}
-.tear-bottom {
-  clip-path: polygon(0% 100%, 100% 100%, 100% 47%, 93% 52%, 86% 44%, 79% 55%, 72% 46%, 65% 51%, 58% 43%, 51% 53%, 44% 47%, 37% 56%, 30% 45%, 23% 52%, 16% 44%, 9% 54%, 0% 48%);
-  filter: drop-shadow(0 -16px 18px rgba(0, 0, 0, 0.55));
-}
-.tear-mark {
+.cinema-bar-top { top: 0; flex-direction: column; gap: 14px; padding-bottom: 3vh; }
+.cinema-bar-bottom { bottom: 0; }
+
+.cinema-logo {
   font-family: var(--font-display);
-  font-size: clamp(2.2rem, 7vw, 4rem);
+  font-size: clamp(1.8rem, 5.5vw, 3rem);
   letter-spacing: 0.04em;
   color: var(--text);
   text-align: center;
+  opacity: 0;
+  animation: cinemaFadeIn 0.5s var(--fx-ease) 0.1s forwards;
 }
-.tear-mark em { color: var(--accent); font-style: normal; }
+.cinema-logo em { color: var(--accent); font-style: normal; }
 
-.tear-intro.tearing .tear-top { animation: tearUp 0.85s cubic-bezier(0.6, 0, 0.15, 1) forwards; }
-.tear-intro.tearing .tear-bottom { animation: tearDown 0.85s cubic-bezier(0.6, 0, 0.15, 1) forwards; }
+/* Optional 3-2-1 countdown leader, injected by JS when FX.introCountdown */
+.cinema-countdown {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  opacity: 0;
+  animation: cinemaFadeIn 0.4s var(--fx-ease) 0.35s forwards;
+}
+.cinema-countdown svg { position: absolute; inset: 0; transform: rotate(-90deg); }
+.cinema-countdown circle { fill: none; stroke-width: 3; }
+.cinema-countdown .ring-track { stroke: var(--border-strong); }
+.cinema-countdown .ring-sweep {
+  stroke: var(--accent);
+  stroke-linecap: round;
+  stroke-dasharray: 163.36;
+  stroke-dashoffset: 163.36;
+  animation: cinemaRingSweep 0.9s linear 0.35s forwards;
+}
+.cinema-countdown-num {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--text);
+}
+.cinema-countdown-num span {
+  position: absolute;
+  opacity: 0;
+  animation: cinemaDigit 0.9s steps(1, end) 0.35s forwards;
+}
+.cinema-countdown-num span:nth-child(2) { animation-delay: 0.65s; }
+.cinema-countdown-num span:nth-child(3) { animation-delay: 0.95s; }
 
-@keyframes tearUp {
-  0% { transform: translateY(0) rotate(0deg); }
-  12% { transform: translateY(1%) rotate(0.3deg); }
-  100% { transform: translateY(-105%) rotate(-4deg); opacity: 0.5; }
+.cinema-skip {
+  position: absolute;
+  bottom: 14px;
+  right: 20px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  opacity: 0;
+  animation: cinemaFadeIn 0.5s var(--fx-ease) 0.4s forwards;
 }
-@keyframes tearDown {
-  0% { transform: translateY(0) rotate(0deg); }
-  12% { transform: translateY(-1%) rotate(-0.3deg); }
-  100% { transform: translateY(105%) rotate(3deg); opacity: 0.5; }
+
+@keyframes cinemaFadeIn { to { opacity: 1; } }
+@keyframes cinemaRingSweep { to { stroke-dashoffset: 0; } }
+@keyframes cinemaDigit {
+  0%, 100% { opacity: 0; }
+  4%, 30% { opacity: 1; }
 }
+
+.cinema-intro.cinema-opening .cinema-bar-top {
+  animation: cinemaBarUp var(--fx-duration-slow) var(--fx-ease) forwards;
+}
+.cinema-intro.cinema-opening .cinema-bar-bottom {
+  animation: cinemaBarDown var(--fx-duration-slow) var(--fx-ease) forwards;
+}
+.cinema-intro.cinema-opening .cinema-logo,
+.cinema-intro.cinema-opening .cinema-skip,
+.cinema-intro.cinema-opening .cinema-countdown {
+  animation: none; opacity: 0; transition: opacity 0.2s ease;
+}
+
+@keyframes cinemaBarUp { to { transform: translateY(-100%); } }
+@keyframes cinemaBarDown { to { transform: translateY(100%); } }
 
 html.intro-lock { overflow: hidden; }
 
-/* ---------- Scroll reveal ---------- */
+/* ---------- [3] Scroll reveal — two tiers ----------
+   .reveal       gentle tier (already in the HTML on cards/rows/tiles):
+                 rises + fades + settles from a soft blur, staggered via
+                 the existing --reveal-i custom property per parent.
+   .reveal-bold  section-level tier, added at runtime by JS to section
+                 headers, the app-promo halves, workout-day blocks and
+                 standalone notes: slides in from alternating sides with
+                 a heavier blur-in, like a camera move into the scene.
+   Both are triggered by the same .reveal-visible class, flipped on once
+   by an IntersectionObserver in site-effects.js (~15-20% visible, once). */
 .reveal {
   opacity: 0;
-  transform: translateX(-44px);
-  transition: opacity 0.65s ease, transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
-  transition-delay: calc(min(var(--reveal-i, 0), 8) * 70ms);
+  transform: translateY(var(--fx-distance-sm)) scale(0.98);
+  filter: blur(3px);
+  transition:
+    opacity var(--fx-duration) var(--fx-ease),
+    transform var(--fx-duration) var(--fx-ease),
+    filter var(--fx-duration) var(--fx-ease);
+  transition-delay: calc(min(var(--reveal-i, 0), var(--fx-stagger-cap)) * var(--fx-stagger));
 }
-.reveal-visible { opacity: 1; transform: none; }
+.reveal.reveal-visible { opacity: 1; transform: none; filter: blur(0); }
+
+.reveal-bold {
+  opacity: 0;
+  filter: blur(var(--fx-blur));
+  transform: translateX(calc(-1 * var(--fx-distance)));
+  transition:
+    opacity var(--fx-duration-slow) var(--fx-ease),
+    transform var(--fx-duration-slow) var(--fx-ease),
+    filter var(--fx-duration-slow) var(--fx-ease);
+  transition-delay: calc(min(var(--reveal-i, 0), var(--fx-stagger-cap)) * var(--fx-stagger));
+}
+.reveal-bold.reveal-right { transform: translateX(var(--fx-distance)); }
+.reveal-bold.reveal-visible { opacity: 1; transform: none; filter: blur(0); }
+
+/* ---------- [4] Scene transitions between sections ----------
+   Added by JS to top-level <section>/.app-promo elements, cycling three
+   styles so consecutive sections don't repeat the same cut. One-shot
+   clip-path reveal, driven by the same .reveal-visible trigger. */
+.scene { transition: clip-path var(--fx-duration-slow) var(--fx-ease); }
+.scene-wipe-l { clip-path: inset(0 100% 0 0); }
+.scene-wipe-r { clip-path: inset(0 0 0 100%); }
+.scene-circle { clip-path: circle(0% at 50% 40%); }
+.scene.reveal-visible.scene-wipe-l,
+.scene.reveal-visible.scene-wipe-r { clip-path: inset(0 0 0 0); }
+.scene.reveal-visible.scene-circle { clip-path: circle(75% at 50% 40%); }
 
 @media (prefers-reduced-motion: reduce) {
-  .tear-intro { display: none !important; }
-  .reveal { opacity: 1; transform: none; transition: none; }
+  .cinema-intro { display: none !important; }
+  .reveal, .reveal-bold { opacity: 1; transform: none; filter: none; transition: none; }
+  .scene, .scene-wipe-l, .scene-wipe-r, .scene-circle { clip-path: none !important; transition: none; }
 }
 
 /* ==========================================================================
@@ -1003,3 +1145,384 @@ html.intro-lock { overflow: hidden; }
   color: var(--text-secondary);
 }
 .privacy-note img { margin-bottom: 16px; }
+
+/* ==========================================================================
+   [2] HERO CINEMATICS
+   .hero-bg / .hero-bg-inner / .hero-content are injected by JS at runtime
+   (progressive enhancement — without JS the hero is just plain, readable,
+   static text). Word-by-word heading + blur-in subtitle + CTA pop are
+   gated behind the .hero-play class, added once the intro finishes.
+   ========================================================================== */
+.app-hero { position: relative; overflow: hidden; isolation: isolate; }
+
+.hero-bg {
+  position: absolute;
+  inset: -12%;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  will-change: transform;
+}
+.hero-bg-inner {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255, 61, 31, 0.22), transparent 55%),
+    radial-gradient(circle at 78% 72%, rgba(255, 61, 31, 0.12), transparent 50%);
+  transform-origin: 60% 35%;
+  animation: kenBurns var(--fx-kenburns-duration) ease-in-out infinite alternate;
+}
+@keyframes kenBurns { from { transform: scale(1); } to { transform: scale(1.15); } }
+
+.hero::after, .app-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 40%, transparent 40%, rgba(0, 0, 0, var(--fx-vignette-opacity)) 100%);
+}
+.hero-content { position: relative; z-index: 2; }
+.hero > *:not(.hero-bg):not(.hero-content), .app-hero > *:not(.hero-bg) { position: relative; z-index: 2; }
+
+/* Word-by-word heading reveal (JS wraps each word in .word > .word-inner) */
+.hero h1 .word, .app-hero h1 .word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: 0.1em;
+  margin-bottom: -0.1em;
+}
+.hero h1 .word-inner, .app-hero h1 .word-inner {
+  display: inline-block;
+  transform: translateY(115%);
+}
+.hero.hero-play h1 .word-inner, .app-hero.hero-play h1 .word-inner {
+  animation: wordUp 0.75s var(--fx-ease) forwards;
+}
+@keyframes wordUp { to { transform: translateY(0); } }
+
+/* Subtitle: fade-in with blur-to-sharp */
+.hero .lead, .app-hero .lead {
+  opacity: 0;
+  filter: blur(8px);
+  transform: translateY(10px);
+  transition: opacity 0.8s var(--fx-ease), filter 0.8s var(--fx-ease), transform 0.8s var(--fx-ease);
+  transition-delay: 0.9s;
+}
+.hero.hero-play .lead, .app-hero.hero-play .lead { opacity: 1; filter: blur(0); transform: none; }
+
+/* CTA: pops in last with a slight overshoot */
+.hero .hero-actions, .app-hero .app-hero-actions {
+  opacity: 0;
+  transform: scale(0.85) translateY(10px);
+  transition: opacity 0.5s var(--fx-ease), transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition-delay: 1.5s;
+}
+.hero.hero-play .hero-actions, .app-hero.hero-play .app-hero-actions { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-bg-inner { animation: none; }
+  .hero h1 .word-inner, .app-hero h1 .word-inner { transform: none; }
+  .hero.hero-play h1 .word-inner, .app-hero.hero-play h1 .word-inner { animation: none; }
+  .hero .lead, .app-hero .lead, .hero .hero-actions, .app-hero .app-hero-actions {
+    opacity: 1; filter: none; transform: none; transition: none; transition-delay: 0s;
+  }
+}
+
+/* ==========================================================================
+   [5] IMAGE REVEAL — mask wipe + zoom-settle + desaturate-to-color hover
+   JS wraps each .screenshot-grid img in .img-reveal > (img + panel) at
+   init. Without JS the <img> just renders normally, full color, no wipe.
+   ========================================================================== */
+.img-reveal {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius);
+}
+.img-reveal-photo {
+  display: block;
+  width: 100%;
+  transform: scale(1.15);
+  filter: saturate(0.3) brightness(0.92);
+  transition: transform 1.1s var(--fx-ease) 0.15s, filter 0.35s ease 0s;
+}
+.img-reveal.reveal-visible .img-reveal-photo { transform: scale(1); }
+.img-reveal-panel {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--accent-dark), var(--accent));
+  transition: transform 0.85s var(--fx-ease);
+}
+.img-reveal.reveal-visible .img-reveal-panel { transform: translateX(100%); }
+
+@media (hover: hover) and (pointer: fine) {
+  .img-reveal:hover .img-reveal-photo { filter: saturate(1) brightness(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .img-reveal-photo { transform: none; filter: none; transition: none; }
+  .img-reveal-panel { display: none; }
+}
+
+/* ==========================================================================
+   [6] FILMSTRIP — pinned horizontal reel (training-plans archive timeline)
+   .filmstrip-wrap is a tall runway; .filmstrip-pin sticks for its height
+   while JS translates .filmstrip-track sideways in step with scroll
+   progress. Below 720px / on coarse pointers it becomes a normal
+   swipeable row — no pin, no JS transform, just native overflow-x.
+   ========================================================================== */
+.filmstrip-wrap { position: relative; margin-top: 18px; }
+.filmstrip-pin {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  overflow: hidden;
+}
+.filmstrip-perf {
+  height: 20px;
+  flex: 0 0 auto;
+  opacity: 0.35;
+  background-image: radial-gradient(circle, #000 0 5px, transparent 6px);
+  background-size: 34px 20px;
+  background-repeat: repeat-x;
+}
+.filmstrip-track {
+  display: flex;
+  align-items: stretch;
+  gap: 22px;
+  padding: 0 8vw;
+  will-change: transform;
+}
+.filmstrip-frame {
+  flex: 0 0 min(80vw, 460px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.filmstrip-frame:hover { border-color: var(--accent); background: var(--surface-2); }
+.filmstrip-frame .timeline-date { font-family: var(--font-display); font-size: 1.4rem; letter-spacing: 0.03em; }
+.filmstrip-frame .timeline-content h4 { font-size: 1.1rem; margin-bottom: 6px; }
+.filmstrip-frame .timeline-content p { font-size: 0.86rem; }
+.filmstrip-hint {
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+@media (max-width: 720px), (hover: none) and (pointer: coarse) {
+  .filmstrip-pin { position: static; height: auto; overflow: visible; padding: 4px 0; }
+  .filmstrip-perf { display: none; }
+  .filmstrip-track {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding: 4px 20px 10px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .filmstrip-frame { scroll-snap-align: center; flex-basis: min(84vw, 380px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .filmstrip-pin { position: static; height: auto; overflow: visible; }
+  .filmstrip-track { flex-wrap: wrap; transform: none !important; }
+  .filmstrip-perf { display: none; }
+}
+
+/* ==========================================================================
+   [8] HOVER & INTERACTION — desktop / fine-pointer only
+   ========================================================================== */
+@media (hover: hover) and (pointer: fine) {
+  /* Tilt: JS drives --tilt-x/--tilt-y/--tilt-mx/--tilt-my per pointermove
+     and toggles .tilt-active while the pointer is over the card. */
+  .plan-card, .version-card, .feature-block, .chart-card, .overview-card, .stat-tile {
+    position: relative;
+    transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.15s ease, box-shadow 0.25s ease;
+  }
+  .plan-card.tilt-active, .version-card.tilt-active, .feature-block.tilt-active,
+  .chart-card.tilt-active, .overview-card.tilt-active, .stat-tile.tilt-active {
+    transform: perspective(900px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) translateY(-4px);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  }
+  .tilt-active::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(220px circle at var(--tilt-mx, 50%) var(--tilt-my, 50%), rgba(255, 255, 255, 0.08), transparent 60%);
+    pointer-events: none;
+  }
+
+  /* Shine sweep across buttons on hover (magnetic pull itself is inline-styled by JS) */
+  .btn::after {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -60%;
+    width: 40%;
+    height: 200%;
+    background: linear-gradient(115deg, transparent, rgba(255, 255, 255, 0.28), transparent);
+    transform: translateX(-120%) rotate(8deg);
+    transition: transform 0.7s ease;
+    pointer-events: none;
+  }
+  .btn:hover::after { transform: translateX(320%) rotate(8deg); }
+
+  /* Underline-grow on inline text links (nav/table/card links, not buttons) */
+  .site-nav .nav-links a, table.data-table td a, .plan-link, .view-button, .footer-links a {
+    position: relative;
+  }
+  .site-nav .nav-links a::after, table.data-table td a::after,
+  .plan-link::after, .view-button::after, .footer-links a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 100%;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s var(--fx-ease);
+  }
+  .site-nav .nav-links a:hover::after, table.data-table td a:hover::after,
+  .plan-link:hover::after, .view-button:hover::after, .footer-links a:hover::after { transform: scaleX(1); }
+  table.data-table td a:hover, .plan-link:hover, .view-button:hover { text-decoration: none; }
+}
+
+/* Click ripple — works on touch too, so it lives outside the hover query */
+.btn-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.45);
+  transform: scale(0);
+  opacity: 0.9;
+  animation: rippleOut 0.6s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes rippleOut { to { transform: scale(1); opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .tilt-active { transform: none; box-shadow: none; }
+  .tilt-active::before { display: none; }
+  .btn-ripple { display: none; }
+}
+
+/* ==========================================================================
+   [9] ATMOSPHERE — film grain + hero vignette (vignette is under [2])
+   .fx-grain is injected once by JS; hidden on narrow/mobile viewports.
+   ========================================================================== */
+.fx-grain {
+  position: fixed;
+  inset: -20px;
+  z-index: 998;
+  pointer-events: none;
+  opacity: var(--fx-grain-opacity);
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  animation: grainShift 1s steps(6) infinite;
+}
+@keyframes grainShift {
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(-2%, 2%); }
+  40% { transform: translate(2%, -1%); }
+  60% { transform: translate(-1%, -2%); }
+  80% { transform: translate(1%, 2%); }
+  100% { transform: translate(0, 0); }
+}
+@media (max-width: 720px) { .fx-grain { display: none; } }
+@media (prefers-reduced-motion: reduce) { .fx-grain { animation: none; } }
+
+/* ==========================================================================
+   [10] NAV PROGRESS BAR + BACK-TO-TOP
+   Both injected once by JS; nav glass/hide-on-scroll lives with .site-nav
+   near the top of this file.
+   ========================================================================== */
+.fx-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent-dark), var(--accent), var(--accent-light));
+  z-index: 60;
+}
+
+.fx-to-top {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(16px) scale(0.9);
+  pointer-events: none;
+  transition: opacity 0.35s var(--fx-ease), transform 0.35s var(--fx-ease), border-color 0.15s ease, color 0.15s ease;
+  z-index: 55;
+}
+.fx-to-top.visible { opacity: 1; transform: none; pointer-events: auto; }
+.fx-to-top:hover { border-color: var(--accent); color: var(--accent); }
+@media (max-width: 720px) { .fx-to-top { right: 14px; bottom: 14px; width: 42px; height: 42px; } }
+@media (prefers-reduced-motion: reduce) { .fx-to-top { transition: opacity 0.2s ease; } }
+
+/* ==========================================================================
+   [11] CUSTOM CURSOR — desktop / fine-pointer only, injected once by JS
+   ========================================================================== */
+@media (hover: hover) and (pointer: fine) {
+  body.fx-cursor-on, body.fx-cursor-on a, body.fx-cursor-on button, body.fx-cursor-on .btn,
+  body.fx-cursor-on input, body.fx-cursor-on summary { cursor: none; }
+  .fx-cursor-dot, .fx-cursor-ring {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    will-change: transform;
+    z-index: 1000;
+  }
+  .fx-cursor-dot { width: 6px; height: 6px; background: var(--accent); }
+  .fx-cursor-ring {
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--border-strong);
+    transition: width 0.25s ease, height 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+  }
+  .fx-cursor-ring.cursor-hover { width: 54px; height: 54px; border-color: var(--accent); background: var(--accent-wash); }
+}
+
+/* ==========================================================================
+   Mobile-wide reduction: smaller reveal offsets/blur, per spec section
+   "Mobil: Effekte reduzieren". Tilt/cursor already excluded by the
+   (hover:hover) queries above; grain already hidden above.
+   ========================================================================== */
+@media (max-width: 720px) {
+  :root {
+    --fx-distance: 46px;
+    --fx-distance-sm: 16px;
+    --fx-blur: 3px;
+  }
+}

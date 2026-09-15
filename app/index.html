@@ -10,13 +10,26 @@
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/gym-theme.css">
     <script src="../js/site-effects.js" defer></script>
+    <!-- Every .reveal/.reveal-bold/.scene/.img-reveal element (and the
+         letterbox intro) starts hidden in CSS and is only ever made visible
+         by site-effects.js. Without JS that would leave real content
+         permanently invisible, so force it all to its settled state here. -->
+    <noscript>
+        <style>
+            .cinema-intro { display: none !important; }
+            .reveal, .reveal-bold, .scene, .img-reveal {
+                opacity: 1 !important; transform: none !important; filter: none !important; clip-path: none !important;
+            }
+            .img-reveal-panel { display: none !important; }
+        </style>
+    </noscript>
 </head>
 <body>
-    <div class="tear-intro" id="tearIntro" aria-hidden="true">
-        <div class="tear-half tear-top">
-            <span class="tear-mark">GYM<em>STATS</em></span>
+    <div class="cinema-intro" id="cinemaIntro" aria-hidden="true">
+        <div class="cinema-bar cinema-bar-top">
+            <span class="cinema-logo">GYM<em>STATS</em></span>
         </div>
-        <div class="tear-half tear-bottom"></div>
+        <div class="cinema-bar cinema-bar-bottom"></div>
     </div>
     <nav class="site-nav">
         <a href="../index.html" class="brand">GYM<span>STATS</span></a>
@@ -26,7 +39,7 @@
         </div>
     </nav>
 
-    <section class="app-hero reveal">
+    <section class="app-hero">
         <img class="app-hero-icon" src="https://api.iconify.design/lucide:mountain-snow.svg?color=%231fa76a" width="56" height="56" alt="">
         <h1>Ironpeak Fitness</h1>
         <p class="lead"><strong>A workout planner, strength tracker, and deep analytics tool</strong> — built as a native app for Android, iOS, Windows, and macOS. All your data stays <strong>100% on your device</strong>: no cloud, no server, no account, no tracking.</p>

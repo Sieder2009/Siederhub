@@ -9,13 +9,33 @@
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/gym-theme.css">
     <script src="../js/site-effects.js" defer></script>
+    <!-- Every .reveal/.reveal-bold/.scene/.img-reveal element (and the
+         letterbox intro) starts hidden in CSS and is only ever made visible
+         by site-effects.js. Without JS that would leave real content
+         permanently invisible, so force it all to its settled state here.
+         The filmstrip's pin+scroll runway (css [6]) is also JS-sized —
+         without JS it would stay a normal-height box while .filmstrip-pin
+         still clips to one screen, hiding frames 4-6 — so drop the pin/clip
+         and let all frames stack normally instead. -->
+    <noscript>
+        <style>
+            .cinema-intro { display: none !important; }
+            .reveal, .reveal-bold, .scene, .img-reveal {
+                opacity: 1 !important; transform: none !important; filter: none !important; clip-path: none !important;
+            }
+            .img-reveal-panel { display: none !important; }
+            .filmstrip-pin { position: static; height: auto; overflow: visible; }
+            .filmstrip-track { flex-wrap: wrap; padding: 4px 4px 16px; }
+            .filmstrip-perf { display: none; }
+        </style>
+    </noscript>
 </head>
 <body>
-    <div class="tear-intro" id="tearIntro" aria-hidden="true">
-        <div class="tear-half tear-top">
-            <span class="tear-mark">GYM<em>STATS</em></span>
+    <div class="cinema-intro" id="cinemaIntro" aria-hidden="true">
+        <div class="cinema-bar cinema-bar-top">
+            <span class="cinema-logo">GYM<em>STATS</em></span>
         </div>
-        <div class="tear-half tear-bottom"></div>
+        <div class="cinema-bar cinema-bar-bottom"></div>
     </div>
     <nav class="site-nav">
         <a href="../index.html" class="brand">GYM<span>STATS</span></a>
@@ -275,54 +295,6 @@
                     </div>
                 </div>
                 
-                <div class="timeline-section">
-                    <h3>Entwicklung — Timeline</h3>
-                    <div class="timeline">
-                        <div class="timeline-item reveal" data-version="v2">
-                            <div class="timeline-date">Juli 13</div>
-                            <div class="timeline-content">
-                                <h4>v2.0 - Grundlagen</h4>
-                                <p>Start mit klassischem PPL Split</p>
-                            </div>
-                        </div>
-                        <div class="timeline-item reveal" data-version="v3">
-                            <div class="timeline-date">Juli 26</div>
-                            <div class="timeline-content">
-                                <h4>v3.0 - Intensivierung</h4>
-                                <p>6-Tage Split mit Heavy/Hypertrophie</p>
-                            </div>
-                        </div>
-                        <div class="timeline-item reveal" data-version="v4">
-                            <div class="timeline-date">August 24</div>
-                            <div class="timeline-content">
-                                <h4>v4.0 - Volumenmaximierung</h4>
-                                <p>332 Sätze/Woche, Extremvolumen</p>
-                            </div>
-                        </div>
-                        <div class="timeline-item reveal" data-version="v5">
-                            <div class="timeline-date">September 12</div>
-                            <div class="timeline-content">
-                                <h4>v5.0 - Strukturierung</h4>
-                                <p>3-Tage Split mit Periodisierung</p>
-                            </div>
-                        </div>
-                        <div class="timeline-item reveal" data-version="v6">
-                            <div class="timeline-date">Dezember 6</div>
-                            <div class="timeline-content">
-                                <h4>v6.0 - Spezialisierung</h4>
-                                <p>Powerlifting Fokus, 1RM-basiert</p>
-                            </div>
-                        </div>
-                        <div class="timeline-item reveal" data-version="v7">
-                            <div class="timeline-date">Dezember 2024</div>
-                            <div class="timeline-content">
-                                <h4>v7.0 - Detaillierung</h4>
-                                <p>Powerlifting Protokoll, Woche 1</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
                 <div class="stats-overview">
                     <h3>Gesamtstatistik aller Pläne</h3>
                     <div class="overview-grid">
@@ -362,6 +334,65 @@
                 <span class="status-live">● Archiv aktiv</span> — Klicke auf „Plan ansehen", um Details zu sehen.
             </div>
         </div>
+
+        <!-- [6] Filmstrip lives outside .terminal-container on purpose: that
+             card has overflow:hidden (to clip its rounded corners), and any
+             non-visible overflow on an ancestor stops position:sticky from
+             tracking the page scroll — see css [6] / js initFilmstrip. -->
+        <div class="timeline-section">
+            <h3>Entwicklung — Timeline</h3>
+            <div class="filmstrip-wrap">
+                <div class="filmstrip-pin">
+                    <div class="filmstrip-perf" aria-hidden="true"></div>
+                    <div class="filmstrip-track">
+                        <div class="filmstrip-frame reveal" data-version="v2">
+                            <div class="timeline-date">Juli 13</div>
+                            <div class="timeline-content">
+                                <h4>v2.0 - Grundlagen</h4>
+                                <p>Start mit klassischem PPL Split</p>
+                            </div>
+                        </div>
+                        <div class="filmstrip-frame reveal" data-version="v3">
+                            <div class="timeline-date">Juli 26</div>
+                            <div class="timeline-content">
+                                <h4>v3.0 - Intensivierung</h4>
+                                <p>6-Tage Split mit Heavy/Hypertrophie</p>
+                            </div>
+                        </div>
+                        <div class="filmstrip-frame reveal" data-version="v4">
+                            <div class="timeline-date">August 24</div>
+                            <div class="timeline-content">
+                                <h4>v4.0 - Volumenmaximierung</h4>
+                                <p>332 Sätze/Woche, Extremvolumen</p>
+                            </div>
+                        </div>
+                        <div class="filmstrip-frame reveal" data-version="v5">
+                            <div class="timeline-date">September 12</div>
+                            <div class="timeline-content">
+                                <h4>v5.0 - Strukturierung</h4>
+                                <p>3-Tage Split mit Periodisierung</p>
+                            </div>
+                        </div>
+                        <div class="filmstrip-frame reveal" data-version="v6">
+                            <div class="timeline-date">Dezember 6</div>
+                            <div class="timeline-content">
+                                <h4>v6.0 - Spezialisierung</h4>
+                                <p>Powerlifting Fokus, 1RM-basiert</p>
+                            </div>
+                        </div>
+                        <div class="filmstrip-frame reveal" data-version="v7">
+                            <div class="timeline-date">Dezember 2024</div>
+                            <div class="timeline-content">
+                                <h4>v7.0 - Detaillierung</h4>
+                                <p>Powerlifting Protokoll, Woche 1</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="filmstrip-perf" aria-hidden="true"></div>
+                </div>
+            </div>
+            <p class="filmstrip-hint">Weiterscrollen, um durch die Versionen zu blättern</p>
+        </div>
     </main>
 
     <footer class="site-footer">
@@ -385,16 +416,13 @@
         updateTime();
         document.getElementById('year').textContent = new Date().getFullYear();
 
-        // Version card hover
+        // Card hover lift/tilt is handled by the shared cinematic engine
+        // (js/site-effects.js) now, so it isn't duplicated here.
         const versionCards = document.querySelectorAll('.version-card');
-        versionCards.forEach(card => {
-            card.addEventListener('mouseenter', () => { card.style.transform = 'translateY(-5px)'; });
-            card.addEventListener('mouseleave', () => { card.style.transform = 'translateY(0)'; });
-        });
 
-        // Timeline -> jump to matching version card
-        const timelineItems = document.querySelectorAll('.timeline-item');
-        timelineItems.forEach(item => {
+        // Filmstrip frame -> jump to matching version card
+        const filmstripFrames = document.querySelectorAll('.filmstrip-frame');
+        filmstripFrames.forEach(item => {
             item.addEventListener('click', () => {
                 const version = item.getAttribute('data-version');
                 const targetCard = document.querySelector(`.version-card.${version}`);
