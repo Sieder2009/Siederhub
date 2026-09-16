@@ -507,7 +507,17 @@ table.data-table td a:hover { text-decoration: underline; }
 }
 .plan-card .plan-status.current { color: var(--good); border-color: rgba(47,191,96,0.4); background: var(--good-wash); }
 .plan-card h4 { font-size: 1.15rem; font-family: var(--font-body); font-weight: 700; text-transform: none; letter-spacing: 0; }
-.plan-card .plan-date { font-size: 0.78rem; color: var(--text-muted); }
+.plan-card .plan-date { font-size: 0.78rem; color: var(--text-muted); display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+
+.plan-reflection {
+  max-width: 640px;
+  margin: 32px auto 0;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+}
+.plan-reflection a { color: var(--accent); font-weight: 700; }
+.plan-reflection a:hover { text-decoration: underline; }
 .plan-card .plan-desc { font-size: 0.86rem; color: var(--text-secondary); flex-grow: 1; }
 .plan-card .plan-link { font-size: 0.78rem; font-weight: 700; color: var(--accent); margin-top: 4px; }
 .plan-card .plan-link:hover { text-decoration: underline; }
@@ -1525,4 +1535,366 @@ html.intro-lock { overflow: hidden; }
     --fx-distance-sm: 16px;
     --fx-blur: 3px;
   }
+}
+
+/* ==========================================================================
+   APP PAGE MARKETING REBUILD (app/index.html) — additive block
+   Supports: the light theme palette (driven by the nav theme toggle), the
+   two-column hero + device-frame video placeholders, the gallery grid +
+   lightbox dialog, the FAQ list, nav scrollspy + theme toggle button
+   styling, the OS-aware "recommended" download badge, and the quick-install
+   code block. Every color below resolves through the existing --* tokens
+   (or the light-theme overrides right below) so new components react to
+   the theme toggle automatically, exactly like the rest of the site.
+   ========================================================================== */
+
+/* ---------- Light theme palette ----------
+   Applied via data-theme="light" on <html>, set by the inline anti-flash
+   script in app/index.html's <head> and toggled by .nav-theme-toggle
+   (js/site-effects.js). Accent/good/warn intentionally stay the same in
+   both themes, matching every other token this file leaves unthemed. */
+:root[data-theme="light"] {
+  --bg: #f5f4f1;
+  --surface: #ffffff;
+  --surface-2: #f0efeb;
+  --surface-3: #e7e5e0;
+  --border: rgba(20, 20, 18, 0.09);
+  --border-strong: rgba(20, 20, 18, 0.18);
+  --text: #17170f;
+  --text-secondary: #4a4a42;
+  --text-muted: #7c7c74;
+}
+
+/* ---------- Accessibility utility ---------- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- Nav: theme toggle + scrollspy active link ---------- */
+.site-nav .nav-links a.active { color: var(--accent); }
+
+.nav-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
+  padding: 0;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.nav-theme-toggle:hover { border-color: var(--accent); }
+.nav-theme-toggle img { display: block; width: 16px; height: 16px; }
+
+/* ---------- App hero: two-column split with a device-frame visual ---------- */
+.app-hero.app-hero-split { max-width: var(--container); text-align: left; }
+.app-hero-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 40px;
+  align-items: center;
+  max-width: var(--container);
+  margin: 0 auto;
+}
+.app-hero-text .eyebrow {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--app-accent);
+  margin-bottom: 14px;
+}
+.app-hero-text .lead { margin: 0 0 24px; }
+.app-hero-text .app-hero-actions,
+.app-hero-text .badge-row { justify-content: flex-start; }
+.app-hero-visual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.app-hero-visual .device-frame { max-width: 300px; width: 100%; }
+.app-hero-visual-caption {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: center;
+  max-width: 34ch;
+}
+.app-hero-stats { margin-top: 48px; }
+
+/* ---------- Device-frame component ----------
+   Phone-shaped frame around a not-yet-recorded local video clip. The
+   gradient placeholder covers the video by default (and stays on top,
+   via .no-source) until js/site-effects.js confirms the clip actually
+   loaded (.has-source), so a 404 never shows a bare broken-video icon. */
+.device-frame {
+  position: relative;
+  aspect-ratio: 9 / 18.5;
+  border-radius: 28px;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+}
+.device-video,
+.device-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  background: var(--surface-2);
+}
+.device-placeholder {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px;
+  text-align: center;
+  color: #fff;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+}
+.device-placeholder-caption {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.92;
+}
+.device-frame.has-source .device-placeholder { display: none; }
+
+/* ---------- Gallery grid + lightbox ---------- */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  max-width: var(--container);
+  margin: 0 auto;
+}
+.gallery-item { margin: 0; }
+.gallery-trigger {
+  all: unset;
+  display: block;
+  width: 100%;
+  cursor: pointer;
+  border-radius: var(--radius);
+}
+.gallery-item > .gallery-trigger > img {
+  width: 100%;
+  display: block;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+}
+.gallery-item figcaption {
+  margin-top: 10px;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+.gallery-item figcaption strong { color: var(--app-accent); }
+
+dialog.lightbox {
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  padding: 0;
+  max-width: min(92vw, 640px);
+  width: 100%;
+}
+dialog.lightbox::backdrop { background: rgba(0, 0, 0, 0.72); }
+.lightbox-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 0.95rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.lightbox-close:hover { border-color: var(--accent); color: var(--accent); }
+.lightbox-body {
+  position: relative;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 82vh;
+  overflow-y: auto;
+}
+.lightbox-body img { width: 100%; border-radius: var(--radius-sm); display: block; }
+.lightbox-body .device-frame { max-width: 300px; margin: 0 auto; }
+.lightbox-caption { font-size: 0.86rem; color: var(--text-secondary); text-align: center; }
+
+/* ---------- FAQ list (details/summary, patterned after .table-toggle) ---------- */
+.faq-list {
+  max-width: var(--container);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.faq-list details {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+}
+.faq-list summary {
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.faq-list summary::-webkit-details-marker { display: none; }
+.faq-list summary::after {
+  content: "+";
+  color: var(--app-accent);
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+.faq-list details[open] summary::after { transform: rotate(45deg); }
+.faq-list summary:hover { color: var(--accent); }
+.faq-list p { margin-top: 12px; color: var(--text-secondary); font-size: 0.9rem; }
+
+/* ---------- Download table: platform icon + OS-aware "recommended" badge ---------- */
+.platform-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.platform-cell img { flex-shrink: 0; }
+.download-recommend-col { width: 170px; }
+table.data-table tr.recommended { background: var(--good-wash); }
+table.data-table tr.recommended td:first-child { color: var(--good); font-weight: 700; }
+.recommended-badge {
+  display: inline-block;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--good);
+  background: var(--good-wash);
+  border: 1px solid rgba(47, 191, 96, 0.4);
+  padding: 3px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* ---------- Quick-install code block ---------- */
+.install-blurb {
+  max-width: 60ch;
+  margin: 28px auto 14px;
+  text-align: center;
+  color: var(--text-secondary);
+}
+.install-block {
+  max-width: var(--container);
+  margin: 0 auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.install-block-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 18px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.install-code {
+  margin: 0;
+  padding: 18px 22px;
+  font-family: var(--font-mono);
+  font-size: 0.86rem;
+  color: var(--text);
+  overflow-x: auto;
+  white-space: pre;
+}
+.copy-btn.copied { color: var(--good); border-color: rgba(47, 191, 96, 0.4); }
+
+/* ---------- Anchor offset so sticky nav never covers a jumped-to section ---------- */
+#gallery, #features, #compare, #faq, #download { scroll-margin-top: 90px; }
+
+@media (hover: hover) and (pointer: fine) {
+  .gallery-trigger { transition: transform 0.2s ease; }
+  .gallery-trigger:hover { transform: translateY(-3px); }
+}
+
+@media (max-width: 720px) {
+  .app-hero-grid { grid-template-columns: 1fr; }
+  .app-hero-visual { order: -1; margin-bottom: 8px; }
+  .app-hero.app-hero-split { text-align: center; }
+  .app-hero-text .app-hero-actions,
+  .app-hero-text .badge-row { justify-content: center; }
+  .gallery-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+  .install-block-head { flex-wrap: wrap; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gallery-trigger,
+  .nav-theme-toggle,
+  .device-video,
+  .faq-list summary::after { transition: none !important; }
+}
+
+/* ==========================================================================
+   [13] STARFIELD / HYPERSPACE BACKGROUND
+   .fx-starfield is a single full-viewport <canvas>, injected once by JS
+   (site-effects.js) as the first child of <body> on every page that loads
+   this stylesheet. All drawing happens on the canvas itself — this rule
+   only pins it fixed behind every other element. z-index:-1 paints it
+   above <body>'s own background (the accent radial-gradient wash near the
+   top of this file still shows through the transparent canvas) but below
+   all normal-flow content. Under prefers-reduced-motion the canvas is
+   never created at all (see site-effects.js), so no "off" state is needed
+   here. */
+.fx-starfield {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  display: block;
 }

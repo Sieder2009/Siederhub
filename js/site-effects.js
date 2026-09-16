@@ -3,7 +3,8 @@
 // css/gym-theme.css. Organized to match the spec sections in that file's
 // "CINEMATIC EFFECTS SYSTEM" comment block ([1] intro, [2] hero, [3] reveal,
 // [4] scene transitions, [5] image reveal, [6] filmstrip, [8] hover/tilt/
-// magnetic, [9] grain, [10] nav/progress/back-to-top, [11] cursor/counters).
+// magnetic, [9] grain, [10] nav/progress/back-to-top, [11] cursor/counters,
+// [12] app-page marketing widgets, [13] starfield/hyperspace background).
 //
 // TO TUNE OR DISABLE AN EFFECT:
 //   - Flip a flag in the FX object right below to turn a whole feature off.
@@ -28,7 +29,14 @@
         magnetic: true,         // [8] magnetic button pull (fine pointers only)
         grain: true,            // [9] film grain overlay (desktop only)
         counters: true,         // [11] count-up numbers
-        filmstrip: true         // [6] pinned horizontal reel on the plan archive
+        filmstrip: true,        // [6] pinned horizontal reel on the plan archive
+        themeToggle: true,      // [12] light/dark nav toggle (app page)
+        scrollspy: true,        // [12] nav-link highlight for the in-view section (app page)
+        deviceMedia: true,      // [12] device-frame video placeholder fallback (app page)
+        lightbox: true,         // [12] gallery lightbox dialog (app page)
+        osDetect: true,         // [12] OS-aware "recommended" download row (app page)
+        copyInstall: true,      // [12] quick-install copy-to-clipboard button (app page)
+        starfield: true         // [13] full-site starfield / hyperspace-on-scroll background
     };
 
     var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -200,6 +208,52 @@
         }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' });
 
         targets.forEach(function (el) { io.observe(el); });
+
+        // Safety net: IntersectionObserver can stop delivering updates in some
+        // browsers/contexts (backgrounded or throttled tabs, some automation
+        // setups) even though it fired once at setup. A plain scroll/resize
+        // listener with a manual geometry check can't have that failure mode —
+        // it guarantees content already on screen (or scrolled to) is never
+        // stuck invisible, regardless of whether the observer above is behaving.
+        var pending = Array.prototype.slice.call(targets);
+        function manualCheck() {
+            var vh = window.innerHeight;
+            pending = pending.filter(function (el) {
+                var r = el.getBoundingClientRect();
+                // Only "not reached yet" (still fully below the viewport) stays
+                // pending. An element already scrolled past (r.bottom <= 0) has
+                // had its moment — reveal it too rather than leaving it stuck,
+                // which a fast/instant scroll could otherwise skip forever.
+                if (r.top >= vh) return true;
+                el.classList.add('reveal-visible');
+                io.unobserve(el);
+                return false;
+            });
+            if (!pending.length) {
+                window.removeEventListener('scroll', onScrollOrResize);
+                window.removeEventListener('resize', onScrollOrResize);
+            }
+        }
+        var manualTicking = false;
+        function onScrollOrResize() {
+            if (manualTicking) return;
+            manualTicking = true;
+            raf(function () { manualTicking = false; manualCheck(); });
+        }
+        window.addEventListener('scroll', onScrollOrResize, { passive: true });
+        window.addEventListener('resize', onScrollOrResize, { passive: true });
+        manualCheck();
+
+        // Belt-and-braces: a fast flick scroll can move the page between two
+        // rAF-coalesced checks above without ever landing a frame while a given
+        // element was in view. A short-lived poll (first ~15s only, well within
+        // where someone would still be scrolling through a first visit) sweeps
+        // up anything either mechanism missed, independent of scroll events.
+        var pollStart = Date.now();
+        var pollId = setInterval(function () {
+            if (!pending.length || Date.now() - pollStart > 15000) { clearInterval(pollId); return; }
+            manualCheck();
+        }, 400);
     }
 
     function initCounters() {
@@ -515,17 +569,344 @@
         });
     }
 
+    // ------------------------------------------------- [12] APP PAGE — nav upgrades
+    // Theme toggle: an inline script in app/index.html's <head> already
+    // applies the stored (or system-preferred) theme to <html> before first
+    // paint, so this only has to sync the button's icon and handle clicks —
+    // it works fine standalone too (falls back to whatever data-theme
+    // already is, or dark, if that inline script is ever absent).
+    function initThemeToggle() {
+        if (!FX.themeToggle) return;
+        var btn = document.querySelector('.nav-theme-toggle');
+        if (!btn) return;
+        var sunIcon = btn.querySelector('.theme-icon-sun');
+        var moonIcon = btn.querySelector('.theme-icon-moon');
+        var root = document.documentElement;
+        var key = 'gymstats-theme';
+
+        function syncIcons() {
+            var isLight = root.getAttribute('data-theme') === 'light';
+            if (sunIcon) sunIcon.hidden = isLight;
+            if (moonIcon) moonIcon.hidden = !isLight;
+        }
+        syncIcons();
+
+        btn.addEventListener('click', function () {
+            var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+            root.setAttribute('data-theme', next);
+            try { localStorage.setItem(key, next); } catch (err) { /* private mode */ }
+            syncIcons();
+        });
+    }
+
+    // Scrollspy: highlights the nav link whose section is currently in
+    // view. No-ops on any page (like the homepage) whose nav links don't
+    // point at in-page section ids.
+    function initScrollspy() {
+        if (!FX.scrollspy) return;
+        var links = document.querySelectorAll('.nav-links a[href^="#"]');
+        if (!links.length || !('IntersectionObserver' in window)) return;
+
+        var map = {};
+        var any = false;
+        links.forEach(function (a) {
+            var id = a.getAttribute('href').slice(1);
+            var section = id && document.getElementById(id);
+            if (section) { map[id] = a; any = true; }
+        });
+        if (!any) return;
+
+        var io = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (!entry.isIntersecting) return;
+                var link = map[entry.target.id];
+                if (!link) return;
+                links.forEach(function (a) { a.classList.remove('active'); });
+                link.classList.add('active');
+            });
+        }, { threshold: 0, rootMargin: '-40% 0px -55% 0px' });
+
+        Object.keys(map).forEach(function (id) { io.observe(document.getElementById(id)); });
+    }
+
+    // Device-frame video placeholders: the media/*.mp4 clips aren't
+    // recorded yet and will 404 today. error -> stays on .no-source (the
+    // gradient placeholder stays on top). loadeddata -> .has-source (the
+    // placeholder hides and the real clip plays). Shared with initLightbox
+    // below, which builds a fresh device-frame for the enlarged video view.
+    function wireDeviceFrame(frame) {
+        var video = frame.querySelector('.device-video');
+        if (!video) return;
+        video.addEventListener('error', function () {
+            frame.classList.add('no-source');
+            frame.classList.remove('has-source');
+        });
+        video.addEventListener('loadeddata', function () {
+            frame.classList.add('has-source');
+            frame.classList.remove('no-source');
+            var playPromise = video.play();
+            if (playPromise && playPromise.catch) playPromise.catch(function () { /* autoplay blocked — placeholder already hidden, clip stays paused on first frame */ });
+        });
+    }
+
+    function initDeviceMedia() {
+        if (!FX.deviceMedia) return;
+        var frames = document.querySelectorAll('.device-frame');
+        if (!frames.length) return;
+        frames.forEach(wireDeviceFrame);
+    }
+
+    // Gallery lightbox: clicking a screenshot or clip opens an enlarged
+    // version in a native <dialog> (Esc-to-close and backdrop for free).
+    function initLightbox() {
+        if (!FX.lightbox) return;
+        var dialog = document.querySelector('dialog.lightbox');
+        var items = document.querySelectorAll('.gallery-item');
+        if (!dialog || !items.length) return;
+        var body = dialog.querySelector('.lightbox-body');
+        var closeBtn = dialog.querySelector('.lightbox-close');
+        if (!body) return;
+
+        function openFor(item) {
+            var type = item.getAttribute('data-type');
+            var src = item.getAttribute('data-src');
+            var caption = item.getAttribute('data-caption') || '';
+            body.innerHTML = '';
+
+            if (type === 'video') {
+                var frame = document.createElement('div');
+                frame.className = 'device-frame no-source lightbox-frame';
+                var video = document.createElement('video');
+                video.className = 'device-video';
+                video.muted = true;
+                video.loop = true;
+                video.autoplay = true;
+                video.playsInline = true;
+                video.preload = 'metadata';
+                video.src = src;
+                var placeholder = document.createElement('div');
+                placeholder.className = 'device-placeholder';
+                placeholder.innerHTML =
+                    '<img src="https://api.iconify.design/lucide:play-circle.svg?color=%23ffffff" width="40" height="40" alt="">' +
+                    '<span class="device-placeholder-caption">Preview coming soon</span>';
+                frame.appendChild(video);
+                frame.appendChild(placeholder);
+                body.appendChild(frame);
+                wireDeviceFrame(frame);
+            } else {
+                var photoFrame = document.createElement('div');
+                photoFrame.className = 'device-frame lightbox-frame';
+                var img = document.createElement('img');
+                img.className = 'device-photo';
+                img.src = src;
+                img.alt = caption;
+                photoFrame.appendChild(img);
+                body.appendChild(photoFrame);
+            }
+
+            if (caption) {
+                var cap = document.createElement('p');
+                cap.className = 'lightbox-caption';
+                cap.textContent = caption;
+                body.appendChild(cap);
+            }
+
+            if (typeof dialog.showModal === 'function') dialog.showModal();
+        }
+
+        items.forEach(function (item) {
+            var trigger = item.querySelector('.gallery-trigger') || item;
+            trigger.addEventListener('click', function () { openFor(item); });
+        });
+
+        if (closeBtn) closeBtn.addEventListener('click', function () { dialog.close(); });
+        dialog.addEventListener('click', function (e) {
+            if (e.target === dialog) dialog.close();
+        });
+    }
+
+    // OS-aware download highlight: best-effort, local-only UA sniff — no
+    // network call, nothing sent anywhere. Silently no-ops if inconclusive
+    // or if the page has no #download table with data-os rows.
+    function initOSDownloadHighlight() {
+        if (!FX.osDetect) return;
+        var rows = document.querySelectorAll('#download tr[data-os]');
+        if (!rows.length) return;
+
+        var raw = '';
+        try {
+            raw = (navigator.userAgentData && navigator.userAgentData.platform) ||
+                navigator.platform || navigator.userAgent || '';
+        } catch (err) { raw = ''; }
+
+        var detected = null;
+        if (/Android/i.test(raw)) detected = 'android';
+        else if (/iPhone|iPad/i.test(raw)) detected = 'ios';
+        else if (/Win/i.test(raw)) detected = 'windows';
+        else if (/Mac/i.test(raw)) detected = 'macos';
+        if (!detected) return;
+
+        rows.forEach(function (row) {
+            if (row.getAttribute('data-os') !== detected) return;
+            row.classList.add('recommended');
+            var cell = row.querySelector('.download-recommend-cell');
+            if (cell && !cell.textContent.trim()) {
+                var badge = document.createElement('span');
+                badge.className = 'recommended-badge';
+                badge.textContent = 'Recommended for you';
+                cell.appendChild(badge);
+            }
+        });
+    }
+
+    // Quick-install copy button: copies the clone command and shows a
+    // brief "Copied!" confirmation. No-ops silently if the Clipboard API
+    // isn't available (denied permission, insecure context, old browser).
+    function initCopyInstall() {
+        if (!FX.copyInstall) return;
+        var buttons = document.querySelectorAll('.copy-btn');
+        if (!buttons.length) return;
+        buttons.forEach(function (btn) {
+            var defaultLabel = btn.textContent;
+            btn.addEventListener('click', function () {
+                var text = btn.getAttribute('data-copy-text') || '';
+                if (!text || !navigator.clipboard || !navigator.clipboard.writeText) return;
+                navigator.clipboard.writeText(text).then(function () {
+                    btn.textContent = 'Copied!';
+                    btn.classList.add('copied');
+                    setTimeout(function () {
+                        btn.textContent = defaultLabel;
+                        btn.classList.remove('copied');
+                    }, 1600);
+                }, function () { /* clipboard denied — no-op */ });
+            });
+        });
+    }
+
+    // ------------------------------------------- [13] starfield / hyperspace
+    // A single full-viewport <canvas>, injected once behind all page content
+    // (z-index -1 in CSS — it paints above <body>'s own background but below
+    // every normal-flow element). Classic 3D star-field projection: each
+    // star has x/y/z in a centered 3D space; every frame it's projected to
+    // screen space via perspective divide (screenX = x/z * focal + centerX)
+    // and drawn as a short line from its PREVIOUS projected position to its
+    // CURRENT one. At idle speed that line is a couple of px — reads as a
+    // drifting dot. Scrolling adds to a "boost" that decays ~10%/frame; at
+    // high speed the same per-star z-delta (and so the same line) simply
+    // gets much longer, which is what turns the field into radiating
+    // light-speed streaks — no separate "hyperspace mode" branch needed.
+    function initStarfield() {
+        if (!FX.starfield || reduceMotion) return;
+        var canvas = document.createElement('canvas');
+        canvas.className = 'fx-starfield';
+        canvas.setAttribute('aria-hidden', 'true');
+        document.body.insertBefore(canvas, document.body.firstChild);
+        var ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        var DENSITY = 1 / 7000;   // stars per square px of viewport
+        var MAX_STARS = 340;
+        var W, H, cx, cy, focal, stars;
+
+        function baseRGB() {
+            // near-white on the site's default dark theme; a dark ink tone
+            // on app/index.html's light theme (data-theme="light") so stars
+            // still read against a pale background instead of vanishing.
+            return document.documentElement.getAttribute('data-theme') === 'light' ? '23,23,15' : '255,255,255';
+        }
+        var ACCENT_RGB = '255,109,77'; // matches --accent-light, ties a minority of stars to the brand
+
+        function spawnStar(atFarPlane) {
+            var z = atFarPlane ? focal : focal * (0.05 + Math.random() * 0.95);
+            return { x: (Math.random() - 0.5) * W, y: (Math.random() - 0.5) * H, z: z, pz: z, tint: Math.random() < 0.12 };
+        }
+
+        function resize() {
+            W = canvas.width = window.innerWidth;
+            H = canvas.height = window.innerHeight;
+            cx = W / 2; cy = H / 2;
+            focal = Math.max(W, H) * 0.9;
+            var count = Math.min(MAX_STARS, Math.max(60, Math.round(W * H * DENSITY)));
+            stars = [];
+            for (var i = 0; i < count; i++) stars.push(spawnStar(false));
+        }
+
+        var boost = 0;
+        function addBoost() { boost = Math.min(boost + 5.5, 46); }
+
+        var starRGB = baseRGB();
+        var frameCount = 0;
+        var visible = !document.hidden;
+        document.addEventListener('visibilitychange', function () {
+            visible = !document.hidden;
+            if (visible) raf(tick);
+        });
+
+        function tick() {
+            if (!visible) return;
+            frameCount++;
+            if (frameCount % 45 === 0) starRGB = baseRGB(); // cheap periodic re-check, not worth doing every frame
+
+            var speed = 0.55 + boost;
+            boost *= 0.9;
+            if (boost < 0.02) boost = 0;
+
+            ctx.clearRect(0, 0, W, H);
+
+            for (var i = 0; i < stars.length; i++) {
+                var s = stars[i];
+                s.pz = s.z;
+                s.z -= speed;
+                if (s.z <= 1) { stars[i] = spawnStar(true); continue; }
+
+                var sx = cx + (s.x / s.z) * focal;
+                var sy = cy + (s.y / s.z) * focal;
+                if (sx < -50 || sx > W + 50 || sy < -50 || sy > H + 50) continue;
+                var px = cx + (s.x / s.pz) * focal;
+                var py = cy + (s.y / s.pz) * focal;
+
+                var depth = 1 - s.z / focal; // 0 far -> 1 near
+                ctx.strokeStyle = 'rgba(' + (s.tint ? ACCENT_RGB : starRGB) + ',' + Math.min(1, 0.15 + depth * 0.9).toFixed(2) + ')';
+                ctx.lineWidth = Math.max(0.6, depth * 2.2);
+                ctx.beginPath();
+                ctx.moveTo(px, py);
+                ctx.lineTo(sx, sy);
+                ctx.stroke();
+            }
+
+            raf(tick);
+        }
+
+        var resizeTimer;
+        window.addEventListener('resize', function () {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(resize, 150);
+        });
+        window.addEventListener('scroll', addBoost, { passive: true });
+        window.addEventListener('wheel', addBoost, { passive: true });
+
+        resize();
+        raf(tick);
+    }
+
     // --------------------------------------------------------------- boot
     prepHero();
     prepImages();
     classifyReveal();
 
+    initThemeToggle();
     initNavAndScroll();
+    initScrollspy();
     initGrain();
     initCursor();
     initTilt();
     initMagnetic();
     initFilmstrip();
+    initDeviceMedia();
+    initLightbox();
+    initOSDownloadHighlight();
+    initCopyInstall();
+    initStarfield();
 
     initCinemaIntro(); // -> afterIntro() once done: reveal observer, hero playback, counters
 })();
