@@ -1,0 +1,189 @@
+@import "tailwindcss";
+/* Self-hosted variable fonts (no request to Google — better for privacy and speed). */
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/unbounded";
+@import "@fontsource-variable/jetbrains-mono";
+
+/* `motion-on:` variant — only while animations are allowed (see lib/motionStore.js). */
+@custom-variant motion-on (&:where([data-motion="on"], [data-motion="on"] *));
+
+/* ===========================================================================
+   Design tokens. Every text/background pair used on the page is checked
+   against WCAG 2.1 AA (README → Barrierefreiheit):
+     cream on night-950 17.2:1 · mist 9.5:1 · haze 6.3:1 · amber 11.1:1
+     night-950 on amber 11.1:1 · court 7.6:1 · mint 9.8:1 (on night-850)
+     line (control borders) ≥ 3.3:1 on every surface (WCAG 1.4.11)
+   =========================================================================== */
+@theme {
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Unbounded Variable", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, "Cascadia Code", Consolas, monospace;
+
+  --color-night-950: #060a14;
+  --color-night-900: #0a1020;
+  --color-night-850: #0d1528;
+  --color-night-800: #121b31;
+  --color-night-700: #1b2742;
+  --color-line: #5d6c91;
+  --color-cream: #f2efe8;
+  --color-mist: #a9b4c9;
+  --color-haze: #8792a8;
+  --color-amber: #ffb347;
+  --color-ember: #ff6a4a;
+  --color-court: #7f9cff;
+  --color-mint: #5fd39a;
+
+  --ease-snap: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --animate-rise: rise 0.9s var(--ease-snap) both;
+  --animate-card-in: card-in 0.5s var(--ease-snap) both;
+  --animate-serve-2d: serve-2d 1.6s var(--ease-snap) both;
+  --animate-cue: cue 2.2s ease-in-out infinite;
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(28px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes card-in {
+    from { opacity: 0; transform: translateY(14px) scale(0.985); }
+    to { opacity: 1; transform: none; }
+  }
+  /* 2D fallback serve: tossed in from the far court, lands with a bounce */
+  @keyframes serve-2d {
+    0% { opacity: 0; transform: translate(18%, 26%) scale(0.12); }
+    30% { opacity: 1; transform: translate(14%, -38%) scale(0.2); }
+    38% { transform: translate(13%, -40%) scale(0.22); }
+    78% { transform: translate(0, 4%) scale(1.03); }
+    100% { opacity: 1; transform: none; }
+  }
+  @keyframes cue {
+    0%, 100% { transform: translateY(-30%); opacity: 0; }
+    40%, 60% { opacity: 1; }
+    100% { transform: translateY(110%); }
+  }
+}
+
+/* ---------------------------------------------------------------- base */
+@layer base {
+  html {
+    background: var(--color-night-950);
+    color: var(--color-cream);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    /* anchor jumps land below the fixed header */
+    scroll-padding-top: 5.5rem;
+  }
+  html[data-motion="on"] {
+    scroll-behavior: smooth;
+  }
+  body {
+    min-height: 100svh;
+    overflow-x: clip;
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--color-amber) 35%, transparent);
+    color: var(--color-cream);
+  }
+  /* One clearly visible focus ring for everything (amber on navy: 11:1).
+     The colour is preset on every element so Tailwind's colour transitions
+     can't fade the ring in from the text colour — it appears at once. */
+  *,
+  ::before,
+  ::after {
+    outline-color: var(--color-amber);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-amber);
+    outline-offset: 3px;
+  }
+}
+
+/* Motion off: everything snaps to its end state. Paired with the 3D scene and
+   the 2D spin, which read the same setting from lib/motionStore.js. */
+[data-motion="off"] *,
+[data-motion="off"] *::before,
+[data-motion="off"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  animation-delay: 0s !important;
+  transition-duration: 0.01ms !important;
+  transition-delay: 0s !important;
+}
+
+/* ---------------------------------------------------------- components */
+@layer components {
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-amber);
+  }
+
+  /* Card: pointer-following border glow + lift. :focus-within gets the very
+     same treatment so keyboard users see what mouse users see. */
+  .project-card {
+    --mx: 50%;
+    --my: 0%;
+    --rx: 0deg;
+    --ry: 0deg;
+    transition:
+      transform 0.45s var(--ease-snap),
+      box-shadow 0.45s var(--ease-snap),
+      border-color 0.3s;
+  }
+  .project-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    padding: 1px;
+    border-radius: inherit;
+    background: radial-gradient(28rem circle at var(--mx) var(--my), color-mix(in srgb, var(--color-amber) 75%, transparent), transparent 42%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.35s;
+    pointer-events: none;
+  }
+  .project-card:hover,
+  .project-card:focus-within {
+    /* --rx/--ry: subtle tilt toward the pointer (set in ProjectCard.jsx, mouse + motion only) */
+    transform: perspective(1100px) rotateX(var(--rx)) rotateY(var(--ry)) translateY(-4px);
+    box-shadow: 0 24px 48px -24px rgb(0 0 0 / 0.75), 0 0 0 1px color-mix(in srgb, var(--color-amber) 18%, transparent);
+  }
+  .project-card:hover::before,
+  .project-card:focus-within::before {
+    opacity: 1;
+  }
+
+  /* The primary button stretches its click area over the whole card; the
+     other links sit above it (z-index) and stay separately clickable. */
+  .stretched-link::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: 1rem;
+  }
+
+  /* Soft ground shadow under the hero ball; the 3D scene feeds --ball-shadow
+     (1 = resting on its spot, 0 = away), the 2D ball leaves it at 1. */
+  .ball-shadow {
+    opacity: calc(var(--ball-shadow, 1) * 0.85);
+    transform: translateX(-50%) scaleX(calc(0.55 + var(--ball-shadow, 1) * 0.45));
+    background: radial-gradient(closest-side, rgb(0 0 0 / 0.7), transparent);
+  }
+}
+
+@layer utilities {
+  /* While a 3D object is under the pointer. */
+  .cursor-3d,
+  .cursor-3d body {
+    cursor: pointer;
+  }
+}

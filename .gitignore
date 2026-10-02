@@ -1,0 +1,5 @@
+# Portfolio (Vite-App in portfolio/)
+node_modules/
+portfolio/dist/
+*.log
+.DS_Store

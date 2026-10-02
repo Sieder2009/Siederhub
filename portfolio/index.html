@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="de" data-motion="on">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Sieder — Informatiker · Apps &amp; Websites</title>
+<meta name="description" content="Portfolio von Sieder: native Apps mit Flutter und interaktive Websites mit React und Three.js — alle Projekte direkt verlinkt." />
+<meta name="theme-color" content="#060a14" />
+<meta name="color-scheme" content="dark" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Sieder — Informatiker · Apps &amp; Websites" />
+<meta property="og:description" content="Native Apps mit Flutter, interaktive Websites mit React und Three.js — alle Projekte direkt verlinkt." />
+<!-- og:image / canonical brauchen absolute URLs: nach dem Deploy eintragen (README → Deployment) -->
+<meta property="og:locale" content="de_DE" />
+<link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+<!-- Applies the stored (or OS-preferred) motion setting before first paint,
+     so a visitor who paused animations never sees a single frame of them.
+     Mirrors src/lib/motionStore.js — keep the key and values in sync. -->
+<script>
+  (function () {
+    var motion = "on";
+    try {
+      var stored = localStorage.getItem("sieder.motion");
+      if (stored === "on" || stored === "off") motion = stored;
+      else if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) motion = "off";
+    } catch (e) {
+      if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) motion = "off";
+    }
+    document.documentElement.setAttribute("data-motion", motion);
+  })();
+</script>
+</head>
+<body>
+<div id="root"></div>
+<noscript>
+  <div style="max-width:40rem;margin:4rem auto;padding:0 1rem;font-family:system-ui,sans-serif;color:#f2efe8;background:#060a14;line-height:1.6">
+    <h1 style="font-size:1.6rem">Sieder — Informatiker</h1>
+    <p>Diese Seite nutzt JavaScript für ihre Animationen. Alle Projekte findest du auch direkt auf GitHub:</p>
+    <p><a style="color:#ffb347" href="https://github.com/Sieder2009">github.com/Sieder2009</a></p>
+  </div>
+</noscript>
+<script type="module" src="/src/main.jsx"></script>
+</body>
+</html>
