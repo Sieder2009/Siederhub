@@ -1,1 +1,2 @@
-
+# Shell-Skripte laufen im CI unter Linux: immer mit LF auschecken
+*.sh text eol=lf

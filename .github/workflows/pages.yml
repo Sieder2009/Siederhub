@@ -1,0 +1,81 @@
+# Veröffentlicht die komplette Seite auf GitHub Pages:
+#
+#   /                      GYM STATS (statische Dateien aus dem Repo-Root)
+#   /portfolio/            Portfolio (Vite-Build aus portfolio/)
+#   /projects/blockblast/  Block Blast als Flutter-Web-Build, frisch aus Sieder2009/BlockBlast
+#
+# Einmalig nötig: Settings → Pages → Build and deployment → Source: „GitHub Actions“.
+name: Pages
+
+on:
+  push:
+    branches: [main]
+  # „Run workflow“-Knopf unter Actions, z. B. nach Änderungen im BlockBlast-Repo
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# nie zwei Deploys gleichzeitig; ein laufender Deploy wird nicht abgebrochen
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: portfolio/package-lock.json
+
+      - name: Portfolio testen und bauen
+        working-directory: portfolio
+        run: |
+          npm ci
+          npm test
+          npm run build
+
+      - name: Block Blast holen
+        uses: actions/checkout@v7
+        with:
+          repository: Sieder2009/BlockBlast
+          path: _blockblast
+          persist-credentials: false
+
+      # dieselbe Flutter-Version wie lokal — der Build ist damit reproduzierbar
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.47.4
+          cache: true
+
+      # --no-web-resources-cdn: CanvasKit kommt von der eigenen Seite statt von Googles CDN
+      - name: Block Blast als Web-App bauen
+        working-directory: _blockblast
+        run: flutter build web --release --no-web-resources-cdn --base-href "/${{ github.event.repository.name }}/projects/blockblast/"
+
+      - name: Seite zusammenbauen
+        run: bash .github/scripts/assemble-site.sh _site _blockblast/build/web
+
+      - uses: actions/configure-pages@v6
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

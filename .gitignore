@@ -3,3 +3,6 @@ node_modules/
 portfolio/dist/
 *.log
 .DS_Store
+
+# lokal zusammengebaute GitHub-Pages-Seite (.github/scripts/assemble-site.sh)
+_site/

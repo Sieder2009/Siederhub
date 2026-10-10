@@ -3,14 +3,15 @@ import { motionStore } from "../../lib/motionStore.js";
 import { finePointer } from "../../lib/capabilities.js";
 import github from "../../data/github.json";
 import ExternalLink from "../ui/ExternalLink.jsx";
-import { Code, Download, Spark } from "../ui/icons.jsx";
+import { Code, Download, Play, Spark } from "../ui/icons.jsx";
 import { btnSmallPrimary, btnSmallSecondary } from "../ui/buttons.js";
 import LanguageBar from "./LanguageBar.jsx";
 
 const BASE = import.meta.env.BASE_URL;
-const ICONS = { download: Download, code: Code };
+const ICONS = { play: Play, download: Download, code: Code };
 const STATUS = {
   live: { label: "Live", dot: "bg-mint" },
+  play: { label: "Spielbar", dot: "bg-mint" },
   download: { label: "Download", dot: "bg-court" },
   code: { label: "Quellcode", dot: "bg-haze" },
 };
@@ -35,7 +36,7 @@ export default function ProjectCard({ project, forYou, onVisit }) {
   const motion = useStore(motionStore);
   const repo = github.repos?.[project.repo];
   const { primary, more } = project.links;
-  // the badge names what the big button does: try it live, download it, or read the code
+  // the badge names what the big button does: view it live, play it, download it, or read the code
   const status = STATUS[primary.type] || STATUS.code;
   const titleId = `${project.id}-title`;
   const tilt = motion === "on" && finePointer;

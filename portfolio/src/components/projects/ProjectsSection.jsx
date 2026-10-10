@@ -82,7 +82,7 @@ export default function ProjectsSection({ projects, tags, githubUser }) {
             <ExternalLink href={`https://github.com/${githubUser}`} className="group/link inline-flex items-center gap-1 font-medium text-cream underline decoration-amber/50 underline-offset-4 transition-colors hover:text-amber hover:decoration-amber">
               {githubUser}
             </ExternalLink>{" "}
-            — jedes Projekt ist direkt verlinkt: live ansehen, herunterladen oder den Quellcode lesen.
+            — jedes Projekt kannst du dir direkt ansehen: live im Browser, spielbar oder auf seiner Produktseite. Der Quellcode ist immer dabei.
           </p>
         </div>
 

@@ -1,15 +1,17 @@
 // ============================================================================
 // PROJEKTE — alles aus github.com/Sieder2009.
 //
-// Regel: Jeder Link hier wurde geprüft und funktioniert (Stand 02.10.2026).
-// Ein Projekt ohne funktionierende Live-Version bekommt KEINEN live-Link,
-// sondern nur den Quellcode — lieber ehrlich als ein toter Link.
+// Regel: Jedes Projekt bekommt als großen Button einen Link, über den man es
+// sich direkt ansehen kann — live, im Browser spielbar oder als Produktseite —
+// und zusätzlich den Quellcode. Jeder Link wurde im Browser geprüft
+// (Stand 09.10.2026); ein toter Link kommt hier nicht rein.
 //
 // Felder:
 //   repo      – Repo-Name auf GitHub (Sprachen + Datum kommen automatisch
 //               aus data/github.json, aktualisieren mit: npm run sync:github)
 //   tags      – steuern die Filter (siehe TAGS unten)
 //   links     – primary: der große Button; more: weitere Links
+//               type: live | play | download | code (Symbol + Badge der Karte)
 //   image     – Datei in public/projects/ (1200×750 + eine -640-Variante)
 // ============================================================================
 
@@ -36,9 +38,10 @@ export const projects = [
     imageAlt: "Drei Bildschirme der App Ironpeak Fitness: Kraft-Übersicht, Trainingstag mit Wochenplan und Analyse-Tab",
     highlight: true,
     links: {
-      primary: { type: "download", label: "App herunterladen", url: "https://github.com/Sieder2009/GymTracker/releases/latest" },
+      // Produktseite aus dem GymTracker-Repo, mit drei Rechnern der App zum Ausprobieren
+      primary: { type: "live", label: "Produktseite ansehen", url: "https://ironpeak.siggidy.dev/" },
       more: [
-        { type: "live", label: "Produktseite", url: "https://sieder2009.github.io/Siederhub/app/" },
+        { type: "download", label: "Herunterladen", url: "https://github.com/Sieder2009/GymTracker/releases/latest" },
         { type: "code", label: "Quellcode", url: "https://github.com/Sieder2009/GymTracker" },
       ],
     },
@@ -84,14 +87,16 @@ export const projects = [
     kind: "Flutter-Spiel",
     purpose: "Nachbau des Puzzle-Spiels Block Blast als App",
     summary:
-      "Blöcke per Drag & Drop auf ein 8×8-Feld ziehen, volle Reihen und Spalten abräumen. Mit Vorschau beim Ziehen, Punkte-Popups, Highscore und gespeichertem Spielstand.",
+      "Blöcke per Drag & Drop auf ein 8×8-Feld ziehen, volle Reihen und Spalten abräumen. Mit Vorschau beim Ziehen, Punkte-Popups, Highscore und gespeichertem Spielstand — als Web-Build direkt im Browser spielbar.",
     tags: ["flutter"],
-    tech: ["Flutter", "Dart", "shared_preferences"],
+    tech: ["Flutter", "Dart", "Flutter Web", "shared_preferences"],
     image: "blockblast",
     imageAlt: "Block Blast mitten im Spiel: 8×8-Spielfeld mit bunten Blöcken, oben Punkte und Rekord 19",
+    // Web-Build entsteht bei jedem Deploy frisch aus dem BlockBlast-Repo
+    // (.github/workflows/pages.yml) und liegt unter /Siederhub/projects/blockblast/.
     links: {
-      primary: { type: "code", label: "Quellcode ansehen", url: "https://github.com/Sieder2009/BlockBlast" },
-      more: [],
+      primary: { type: "play", label: "Im Browser spielen", url: "https://sieder2009.github.io/Siederhub/projects/blockblast/" },
+      more: [{ type: "code", label: "Quellcode", url: "https://github.com/Sieder2009/BlockBlast" }],
     },
   },
   {
@@ -106,11 +111,9 @@ export const projects = [
     tech: ["HTML", "CSS", "JavaScript", "i18n"],
     image: "raspberrypi",
     imageAlt: "Startseite der Raspberry-Pi-Website: „Klein. Mächtig. Unendlich möglich.“ neben einem Raspberry Pi 5 auf einem Holztisch",
-    // Live-Version derzeit offline (Domain pi.sieder.plattnericus.dev ohne DNS).
-    // Sobald sie wieder läuft: als primary { type: "live", ... } eintragen.
     links: {
-      primary: { type: "code", label: "Quellcode ansehen", url: "https://github.com/Sieder2009/Raspberrypi" },
-      more: [],
+      primary: { type: "live", label: "Live ansehen", url: "https://sieder2009.github.io/Raspberrypi/" },
+      more: [{ type: "code", label: "Quellcode", url: "https://github.com/Sieder2009/Raspberrypi" }],
     },
   },
   {

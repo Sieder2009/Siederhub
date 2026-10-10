@@ -29,6 +29,9 @@ Inhalte zentral in `data/`.
 ```
 Siederhub/
 ├── index.html, app/, training-plans/, extras/, css/, js/, img/   ← GYM STATS (unverändert)
+├── .github/
+│   ├── workflows/pages.yml             Deploy: GYM STATS + Portfolio + Block Blast (Abschnitt 8)
+│   └── scripts/assemble-site.sh        baut das Pages-Verzeichnis zusammen (CI und lokal)
 └── portfolio/                          ← NEU
     ├── index.html                      Einstieg + Motion-Vorabschaltung (kein Flackern)
     ├── vite.config.js                  base "./" → läuft unter jedem Unterpfad
@@ -166,29 +169,57 @@ App
 
 ## 7. Projekte & Links
 
-Alle Links in `src/data/projects.js` wurden am 02.10.2026 geprüft (alle 200).
-**Nicht verlinkt, weil kaputt** (Custom-Domain ohne DNS-Eintrag, GitHub Pages leitet ins Leere):
+Jede Karte hat einen großen Button, über den man das Projekt **direkt ansehen** kann, plus
+den Quellcode. Alle Links in `src/data/projects.js` wurden am 09.10.2026 im Browser geprüft
+(gerendert — ein Status 200 allein beweist bei Single-Page-Apps nichts):
 
-| Repo | Pages leitet auf | Lösung |
+| Projekt | Button | Läuft unter |
 |---|---|---|
-| Raspberrypi | `pi.sieder.plattnericus.dev` (NXDOMAIN) | `CNAME`-Datei löschen → `sieder2009.github.io/Raspberrypi/` — oder DNS-Eintrag anlegen |
-| Terminal | `monster.sieder.plattnericus.dev` (NXDOMAIN) | dito (Inhalt läuft bereits unter `Siederhub/extras/`) |
-| GymTracker | `gymtracker.plattnericus.dev` (NXDOMAIN) | dito |
-| mc | `sieder2009.github.io/mc/` zeigt eine **leere Seite** (Pages liefert den Quellcode statt `docs/`) | Settings → Pages → Folder `/docs`. Verlinkt ist `mc.siggidy.dev` (funktioniert) |
+| Ironpeak Fitness | Produktseite ansehen · Herunterladen | `ironpeak.siggidy.dev` (Produktseite aus dem GymTracker-Repo, drei Rechner der App zum Ausprobieren) · `GymTracker/releases/latest` |
+| affenmal | Live ansehen | `mc.siggidy.dev` |
+| GYM STATS | Live ansehen | `sieder2009.github.io/Siederhub/` |
+| Block Blast | Im Browser spielen | `sieder2009.github.io/Siederhub/projects/blockblast/` — Flutter-Web-Build, entsteht bei jedem Deploy frisch aus dem BlockBlast-Repo |
+| Raspberry Pi Website | Live ansehen | `sieder2009.github.io/Raspberrypi/` — tote Custom-Domain entfernt (`CNAME` gelöscht, 08.10.2026) |
+| CyberSpace Terminal | Live ansehen | `sieder2009.github.io/Siederhub/extras/` (der Inhalt des Terminal-Repos läuft dort weiter) |
 
-Ist eine Live-Version wieder erreichbar: in `projects.js` als `primary: { type: "live", … }` eintragen.
-`shader` (leer) und das Profil-README sind bewusst keine Karten.
+Link-Typen in `projects.js`: `live`, `play`, `download`, `code` — sie bestimmen Symbol und
+Badge der Karte. `shader` (leer) und das Profil-README sind bewusst keine Karten.
 
-## 8. Deployment (offene Entscheidung)
+Kleinigkeiten in den anderen Repos (betreffen das Portfolio nicht):
 
-`npm run build` erzeugt `dist/` mit relativen Pfaden. Zwei Wege:
+- **Terminal:** Pages leitet noch auf `monster.sieder.plattnericus.dev` (ohne DNS) — `CNAME`
+  löschen öffnet `sieder2009.github.io/Terminal/` wieder.
+- **mc:** Das „Website“-Feld des Repos zeigt noch auf `monster.sieder.plattnericus.dev/mc`.
+- **GymTracker-Produktseite:** `canonical`, `og:url` und `og:image` enthalten noch den
+  Platzhalter `__SITE_URL__`.
+- **Raspberrypi:** Support-Formular (`/api/support`) und `/cdn-cgi/l/email-protection`-Links
+  stammen von Cloudflare und funktionieren auf GitHub Pages nicht.
+- **Siederhub `app/`:** die Videos `app/media/*.mp4` sind nicht im Repo (404).
 
-- **A — Build einchecken** (wie im mc-Repo): Build nach z. B. `Siederhub/me/` ausgeben und
-  committen → `sieder2009.github.io/Siederhub/me/`. Kein Setup, aber Build-Dateien im Git.
-- **B — GitHub Actions** (empfohlen): Workflow baut bei jedem Push und veröffentlicht
-  GYM STATS + Portfolio gemeinsam; einmalig Settings → Pages → Source „GitHub Actions“.
+## 8. Deployment (GitHub Actions)
 
-Danach `og:image` und `canonical` in `index.html` mit absoluter URL ergänzen.
+`.github/workflows/pages.yml` baut bei jedem Push auf `main` (oder per „Run workflow“) die
+komplette Seite und veröffentlicht sie auf GitHub Pages:
+
+| Pfad | Inhalt |
+|---|---|
+| `/Siederhub/` | GYM STATS — alle eingecheckten Dateien aus dem Repo-Root, wie bisher |
+| `/Siederhub/portfolio/` | dieses Portfolio (`npm ci` → `npm test` → `npm run build`) |
+| `/Siederhub/projects/blockblast/` | Block Blast: `flutter build web` (Flutter 3.47.4) aus `Sieder2009/BlockBlast` |
+
+**Einmalig nötig:** Settings → Pages → Build and deployment → Source: **GitHub Actions**.
+Danach Actions → „Pages“ → „Run workflow“ (oder den nächsten Push abwarten).
+
+Lokal dasselbe zusammenbauen:
+
+```bash
+cd portfolio && npm run build && cd ..
+bash .github/scripts/assemble-site.sh _site [pfad/zu/BlockBlast/build/web]
+```
+
+`_site/` muss unter `/Siederhub/` ausgeliefert werden (wie auf GitHub Pages), weil Block Blast
+mit `--base-href /Siederhub/projects/blockblast/` gebaut wird. Unter Windows braucht
+`flutter build web` für Plugins Symlinks (Entwicklermodus); im CI (Linux) entfällt das.
 
 ## 9. Nächste Schritte
 
@@ -196,4 +227,5 @@ Danach `og:image` und `canonical` in `index.html` mit absoluter URL ergänzen.
    hebt die Skills hervor, die der Besucher angeklickt hat (Hook ist schon da).
 2. **Kontakt** — Formular (z. B. Formspree / eigener Endpoint), Social Links aus `profile.js`
    (LinkedIn/X/Discord eintragen → erscheinen automatisch).
-3. Optional: Portfolio als Startseite von Siederhub, GYM STATS nach `/gym/`.
+3. Optional: `og:image` (Vorschaubild beim Teilen), Portfolio als Startseite von Siederhub
+   (GYM STATS nach `/gym/`).
