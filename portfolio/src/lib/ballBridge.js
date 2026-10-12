@@ -34,6 +34,11 @@ export function onBallCommand(command, listener) {
 // the far court — no second ball flying in next to the first.
 export const ballPlaceholder = { shown: false };
 
+// Which spot the 3D ball is in right now ("hero", "dock", "github" …, see
+// lib/sections.js) — null while there is no 3D ball. The dock shows a plain
+// arrow while the ball is away.
+export const ballSpotStore = createStore(null);
+
 // DOM hooks the scene positions itself against.
 export const ANCHOR_SELECTOR = "[data-ball-anchor]";
 export const DOCK_SELECTOR = "[data-ball-dock]";

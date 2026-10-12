@@ -5,8 +5,8 @@ import { GitHub } from "../ui/icons.jsx";
 import MotionToggle from "./MotionToggle.jsx";
 
 const navLink =
-  "group/link relative inline-flex h-10 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-mist transition-colors duration-200 hover:text-cream focus-visible:text-cream " +
-  "after:absolute after:inset-x-3 after:bottom-1.5 after:h-px after:origin-left after:scale-x-0 after:bg-amber after:transition-transform after:duration-300 hover:after:scale-x-100 focus-visible:after:scale-x-100";
+  "group/link relative inline-flex h-10 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-mist transition-colors duration-200 hover:text-cream focus-visible:text-cream day:text-ink-soft day:hover:text-ink day:focus-visible:text-ink " +
+  "after:absolute after:inset-x-3 after:bottom-1.5 after:h-px after:origin-left after:scale-x-0 after:bg-amber after:transition-transform day:after:bg-ember-deep after:duration-300 hover:after:scale-x-100 focus-visible:after:scale-x-100";
 
 export default function SiteHeader({ profile }) {
   const scrolled = useScrolled();
@@ -15,15 +15,15 @@ export default function SiteHeader({ profile }) {
   return (
     <header
       className={`fixed inset-x-0 top-0 z-40 transition-[background-color,border-color,backdrop-filter] duration-300 ${
-        scrolled ? "border-b border-night-700/80 bg-night-950/85 backdrop-blur-md" : "border-b border-transparent"
+        scrolled ? "border-b border-night-700/80 bg-night-950/85 backdrop-blur-md day:border-ink/10 day:bg-cream/85" : "border-b border-transparent"
       }`}
     >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
-        <a href="#top" className="group flex items-center gap-2.5 rounded-full py-1 pr-2 font-display text-lg font-bold tracking-tight">
+        <a href="#top" className="group flex items-center gap-2.5 rounded-full py-1 pr-2 font-display text-lg font-bold tracking-tight transition-colors day:text-ink">
           <VolleyballSVG className="size-6 transition-transform duration-500 group-hover:rotate-[200deg] group-focus-visible:rotate-[200deg]" />
           <span>
             {profile.name.toLowerCase()}
-            <span className="text-amber">.</span>
+            <span className="text-amber day:text-ember-deep">.</span>
           </span>
           <span className="sr-only"> — zum Seitenanfang</span>
         </a>
@@ -34,6 +34,11 @@ export default function SiteHeader({ profile }) {
               <li>
                 <a href="#projekte" className={navLink}>
                   Projekte
+                </a>
+              </li>
+              <li className="hidden sm:block">
+                <a href="#werkzeug" className={navLink}>
+                  Werkzeug
                 </a>
               </li>
               {github && (

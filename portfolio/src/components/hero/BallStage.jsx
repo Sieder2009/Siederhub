@@ -15,7 +15,7 @@ const PLACEHOLDER_DELAY = 6000;
 // The ball's home in the hero. The empty [data-ball-anchor] box is what the
 // 3D scene measures every frame, so the WebGL ball always sits exactly here —
 // on any screen size, and never under text.
-export default function BallStage() {
+export default function BallStage({ className = "aspect-square w-[min(66vw,19rem)]" }) {
   const motion = useStore(motionStore);
   const status = useStore(ballStatus);
   const [waitedTooLong, setWaitedTooLong] = useState(false);
@@ -44,8 +44,14 @@ export default function BallStage() {
     else setServeKey((k) => k + 1);
   };
 
+  // the 2D serve has landed: same signal the 3D scene sends (Hero jolts the wordmark)
+  const landed2D = (e) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    window.dispatchEvent(new CustomEvent("ball:land", { detail: { x: r.left + r.width / 2, y: r.top + r.height / 2 } }));
+  };
+
   return (
-    <div className="relative mx-auto aspect-square w-[min(66vw,19rem)] sm:w-[min(52vw,24rem)] lg:w-full lg:max-w-[29rem]">
+    <div className={`relative ${className}`}>
       <div
         role="img"
         aria-label={motion === "on" ? "Volleyball, der sich beim Scrollen mitdreht" : "Volleyball"}
@@ -56,11 +62,15 @@ export default function BallStage() {
         <div aria-hidden="true" className="absolute inset-[1%] rounded-full border border-dashed border-night-700" />
         <div aria-hidden="true" className="absolute -inset-[9%] rounded-full border border-night-700/60" />
 
-        <div data-ball-anchor className="absolute inset-[8%]" />
+        <div data-ball-anchor data-ball-spot="hero" className="absolute inset-[8%]" />
         <div aria-hidden="true" className="ball-shadow absolute bottom-[1%] left-1/2 h-[7%] w-[60%] rounded-[50%]" />
 
         {show2D && (
-          <div key={serveKey} className={`absolute inset-[8%] ${animated2D ? "motion-on:animate-serve-2d" : ""}`}>
+          <div
+            key={serveKey}
+            onAnimationEnd={animated2D ? landed2D : undefined}
+            className={`absolute inset-[8%] ${animated2D ? "motion-on:animate-serve-2d" : ""}`}
+          >
             <VolleyballSVG spinRef={spinRef} className="size-full drop-shadow-[0_24px_40px_rgb(0_0_0/0.45)]" />
           </div>
         )}

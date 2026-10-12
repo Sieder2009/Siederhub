@@ -4,15 +4,20 @@ import * as THREE from "three";
 import { createVolleyballMaterial } from "./volleyballMaterial.js";
 import { clamp, damp, planServe, sampleServe, smoothstep, spinStep, springStep3 } from "../../lib/ballPhysics.js";
 import { getScrollVelocity, subscribeScroll } from "../../lib/scrollVelocity.js";
-import { ANCHOR_SELECTOR, DOCK_SELECTOR, ballPlaceholder, onBallCommand } from "../../lib/ballBridge.js";
+import { ANCHOR_SELECTOR, DOCK_SELECTOR, ballPlaceholder, ballSpotStore, onBallCommand } from "../../lib/ballBridge.js";
+import { sectionStore } from "../../lib/sectionStore.js";
+import { sectionById } from "../../lib/sections.js";
+import { pickSpot } from "../../lib/spots.js";
 import { finePointer } from "../../lib/capabilities.js";
 import { CAMERA_FOV, CAMERA_Z } from "./camera.js";
 
 // The volleyball's own canvas sits ABOVE the page content (so the docked ball
-// can float over the corner button) but never under text: it rests in the
-// hero's empty [data-ball-anchor] box or in the dock, and its serve path stays
-// inside the anchor's column. Camera: fixed at z = 10 looking down -z, so the
-// z = 0 plane maps linearly onto the viewport and DOM boxes convert directly.
+// can float over the corner button) but never under text: it only ever rests
+// in an empty spot box — the hero's [data-ball-anchor], a section's
+// [data-ball-spot], or the corner dock — and travels between them as you
+// scroll (lib/sections.js says which spot each section wants). Camera: fixed
+// at z = 10 looking down -z, so the z = 0 plane maps linearly onto the
+// viewport and DOM boxes convert directly.
 
 const SERVER_Z = -40; // the server stands behind the far baseline (arena: net at z = -28)
 const SCROLL_SPIN = 0.0105; // rad/s of roll per px/s of scroll speed
@@ -26,6 +31,31 @@ const isInteractive = (el) => !!el?.closest?.("a, button, input, textarea, selec
 
 // world units per CSS pixel on the z = 0 plane
 const unitsPerPixel = (height) => (2 * Math.tan(THREE.MathUtils.degToRad(CAMERA_FOV) / 2) * CAMERA_Z) / height;
+
+// Where the ball should be this frame: the current section's preferred spot
+// that is on screen, else the dock (once the hero is behind you), else the hero.
+function findHome(anchorEl, dockEl, size) {
+  const dockActive = dockEl?.dataset.active === "true";
+  const candidates = sectionById(sectionStore.get()).spots.map((name) => {
+    let el = null;
+    if (name === "dock") el = dockActive ? dockEl : null;
+    else if (name === "hero") el = anchorEl;
+    else el = document.querySelector(`[data-ball-spot="${name}"]`);
+    return { name, el, rect: el ? el.getBoundingClientRect() : null };
+  });
+  const pick = pickSpot(candidates, size.width, size.height);
+  if (pick) return pick;
+  if (dockActive) return { name: "dock", el: dockEl, rect: dockEl.getBoundingClientRect() };
+  return { name: "hero", el: anchorEl, rect: anchorEl.getBoundingClientRect() };
+}
+
+function rectToWorld(r, size, k, fill) {
+  return {
+    x: (r.left + r.width / 2 - size.width / 2) * k,
+    y: (size.height / 2 - (r.top + r.height / 2)) * k,
+    radius: (Math.min(r.width, r.height) / 2) * k * fill,
+  };
+}
 
 function boxToWorld(el, size, k, fill) {
   const r = el.getBoundingClientRect();
@@ -160,6 +190,7 @@ export default function BallWorld({ onFirstFrames }) {
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("click", onClick);
       document.documentElement.classList.remove("cursor-3d");
+      ballSpotStore.set(null);
       // back to the 2D ball (paused / failed): its shadow must not inherit our last value
       document.querySelector(ANCHOR_SELECTOR)?.style.removeProperty("--ball-shadow");
     };
@@ -185,10 +216,14 @@ export default function BallWorld({ onFirstFrames }) {
     // ------------------------------------------------ where should it be?
     const k = unitsPerPixel(size.height);
     const dockEl = document.querySelector(DOCK_SELECTOR);
-    const docked = dockEl?.dataset.active === "true";
+    const spot = findHome(anchorEl, dockEl, size);
+    if (spot.name !== ballSpotStore.get()) ballSpotStore.set(spot.name);
+    const docked = spot.name === "dock";
+    // tight spots (the dive) follow their box closely instead of floating after it
+    const tight = spot.el?.dataset.ballTight === "true";
     const anchor = boxToWorld(anchorEl, size, k, 1);
-    const home = docked ? boxToWorld(dockEl, size, k, 0.72) : anchor;
-    const bob = docked ? 0 : Math.sin(s.clock * 1.25) * 0.045 * home.radius;
+    const home = rectToWorld(spot.rect, size, k, docked ? 0.72 : 1);
+    const bob = docked || tight ? 0 : Math.sin(s.clock * 1.25) * 0.045 * home.radius;
     const goal = [home.x, home.y + bob, 0];
 
     // ------------------------------------------------------------- serve
@@ -226,14 +261,18 @@ export default function BallWorld({ onFirstFrames }) {
         s.ringT = 0;
         s.ringPos.set(goal[0], goal[1], -0.01);
         s.ringR = home.radius;
+        // the page reacts to the landing (Hero.jsx sends a jolt through the wordmark)
+        window.dispatchEvent(new CustomEvent("ball:land", { detail: { x: s.screen.x, y: s.screen.y } }));
       }
     } else {
       if (s.frames === 0) s.pos = goal.slice();
-      const r = springStep3(s.pos, s.vel, goal, docked ? 7 : 8.5, docked ? 0.74 : 0.6, dt);
+      const r = springStep3(s.pos, s.vel, goal, tight ? 16 : docked ? 7 : 8.5, tight ? 0.92 : docked ? 0.74 : 0.6, dt);
       s.pos = r.pos;
       s.vel = r.vel;
-      s.radius = damp(s.radius, home.radius, 6, dt);
-      s.opacity = damp(s.opacity, 1, 5, dt);
+      s.radius = damp(s.radius, home.radius, tight ? 16 : 6, dt);
+      // a spot may ask for the ball to fade (the dive dissolves it into the page)
+      const wantOpacity = spot.el?.dataset.ballOpacity != null ? Number(spot.el.dataset.ballOpacity) : 1;
+      s.opacity = damp(s.opacity, wantOpacity, tight ? 14 : 5, dt);
     }
 
     // ------------------------------------------------- screen position

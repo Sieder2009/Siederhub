@@ -4,15 +4,16 @@ import Arena from "./Arena.jsx";
 import BallWorld from "./BallWorld.jsx";
 import FrameGovernor from "./FrameGovernor.jsx";
 import { CAMERA } from "./camera.js";
+import { forced3D } from "../../lib/capabilities.js";
 
 // Everything three.js lives in this lazily loaded chunk (see BallLayer.jsx).
 //
 // Two transparent, fixed, full-screen canvases with pointer-events: none:
-//   arena – BEHIND the content (z-0): court, net, dust, wireframe satellites
+//   arena – BEHIND the content (z-0): star field + wireframe satellites
 //   ball  – ABOVE the content (z-30): only the volleyball, which never rests
 //           under text (hero anchor or corner dock), so nothing gets covered
-// Both render on demand: the arena only while the hero is on screen, the ball
-// only while something about it moves.
+// Both render on demand: the arena only during the night act (until the
+// dive), the ball only while something about it moves.
 //
 // Quality steps when frames run long: 2 = everything, 1 = no arena,
 // 0 = ball at pixel ratio 1, below that → give up (2D ball).
@@ -25,7 +26,6 @@ const NO_POINTER = { pointerEvents: "none" };
 
 export default function Scene3D({ lite, onReady, onLost, onFail }) {
   const [quality, setQuality] = useState(lite ? 1.5 : 2);
-  const arenaFade = useRef(null);
   const [arenaOn, setArenaOn] = useState(false);
   const alive = useRef(true);
 
@@ -38,6 +38,7 @@ export default function Scene3D({ lite, onReady, onLost, onFail }) {
 
   const stepDown = useCallback(() => {
     setQuality((q) => {
+      if (forced3D) return q; // ?3d=force: full quality, however slow
       const next = q >= 1.5 ? 1 : q - 1;
       if (next < 0) onFail?.();
       return next;
@@ -68,7 +69,7 @@ export default function Scene3D({ lite, onReady, onLost, onFail }) {
           aria-hidden="true"
           className={`pointer-events-none fixed inset-0 z-0 transition-opacity duration-1000 ${arenaOn ? "opacity-100" : "opacity-0"}`}
         >
-          <div ref={arenaFade} className="absolute inset-0">
+          <div className="absolute inset-0">
             <Canvas
               flat
               style={NO_POINTER}
@@ -81,7 +82,7 @@ export default function Scene3D({ lite, onReady, onLost, onFail }) {
                 requestAnimationFrame(() => setArenaOn(true));
               }}
             >
-              <Arena lite={lite} fadeRef={arenaFade} />
+              <Arena lite={lite} />
             </Canvas>
           </div>
         </div>

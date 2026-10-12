@@ -4,28 +4,33 @@ import * as THREE from "three";
 import { clamp, damp, smoothstep } from "../../lib/ballPhysics.js";
 import { getScrollVelocity, subscribeScroll } from "../../lib/scrollVelocity.js";
 import { ANCHOR_SELECTOR } from "../../lib/ballBridge.js";
+import { sectionStore } from "../../lib/sectionStore.js";
+import { sectionById } from "../../lib/sections.js";
 import { finePointer } from "../../lib/capabilities.js";
 import { CAMERA_FOV, CAMERA_Z } from "./camera.js";
 
-// The room behind the hero: a faint volleyball court with its net, dust
-// drifting in the hall light, and a few wireframe "satellites" around the
-// ball that react to hover, clicks and scrolling. Everything here is low
-// contrast on purpose — it sits behind the text (contrast stays AA, see
-// README) and fades out (wrapper opacity) as the hero scrolls away, then
-// stops rendering altogether.
+// The sky behind the page's first act: a deep star field the camera drifts
+// through — scroll, and it flies; scroll fast, and the stars stretch into
+// light-speed streaks; scroll back up, and it reverses. Around the hero ball
+// float a few wireframe "satellites" that react to hover, clicks and
+// scrolling. Everything here is low contrast on purpose — it sits behind the
+// text (contrast stays AA, see README) — and stops rendering once the page
+// turns to day after the dive.
 
-// deep enough that the whole court stays right of the hero text column
-const FLOOR_Y = -4.6;
-const NET_Z = -28;
 const TAN = Math.tan(THREE.MathUtils.degToRad(CAMERA_FOV) / 2);
+const FAR = -84;
+const NEAR = 7;
+const IDLE_SPEED = 1.1; // world units per second while nobody scrolls
+const SCROLL_SPEED = 0.014; // extra units/s per px/s of scroll speed
+const MAX_SPEED = 70;
 
 // offsets from the ball's centre in ball radii (x right, y up) — wide layout
-// keeps them right of the text column, narrow layout above the text
+// keeps them around the ball, narrow layout a bit tighter
 const SHAPES = [
-  { geo: "icosa", size: 0.34, z: -3, wide: [-0.95, 0.92], narrow: [-1.3, 0.55], color: "#7f9cff", parallax: 0.16 },
-  { geo: "octa", size: 0.42, z: -5, wide: [1.2, 1.0], narrow: [1.3, 0.8], color: "#ffb347", parallax: 0.3 },
-  { geo: "tetra", size: 0.3, z: -2, wide: [1.32, -0.62], narrow: [1.32, -0.42], color: "#f2efe8", parallax: 0.1 },
-  { geo: "dodeca", size: 0.38, z: -4, wide: [-1.02, -0.72], narrow: [-1.26, -0.36], color: "#ffb347", parallax: 0.22 },
+  { geo: "icosa", size: 0.34, z: -3, wide: [-0.95, 0.92], narrow: [-1.2, 0.55], color: "#7f9cff", parallax: 0.16 },
+  { geo: "octa", size: 0.42, z: -5, wide: [1.2, 1.0], narrow: [1.2, 0.8], color: "#ffb347", parallax: 0.3 },
+  { geo: "tetra", size: 0.3, z: -2, wide: [1.32, -0.62], narrow: [1.22, -0.42], color: "#f2efe8", parallax: 0.1 },
+  { geo: "dodeca", size: 0.38, z: -4, wide: [-1.02, -0.72], narrow: [-1.18, -0.36], color: "#ffb347", parallax: 0.22 },
   { geo: "box", size: 0.4, z: -7, wide: [0.25, 1.5], narrow: [0.02, 1.32], color: "#7f9cff", parallax: 0.38 },
 ];
 
@@ -42,93 +47,100 @@ function shapeGeometry(kind) {
   return edges;
 }
 
-function linesGeometry(segments) {
-  return new THREE.BufferGeometry().setAttribute("position", new THREE.Float32BufferAttribute(segments.flat(2), 3));
-}
+// Shared GLSL: where a star is right now. position.xy is fixed, position.z
+// is the star's phase (0…1) along the flight path; uTravel moves everyone.
+const STAR_POSITION = /* glsl */ `
+  attribute float aSeed;
+  uniform float uTravel;
+  vec3 starPosition() {
+    float span = ${(NEAR - FAR).toFixed(1)};
+    float z = ${FAR.toFixed(1)} + mod(position.z * span + uTravel * (0.7 + aSeed * 0.6), span);
+    return vec3(position.xy, z);
+  }
+  float starFade(float dist) {
+    // fade in far away, fade out just before a star would pass the camera
+    return smoothstep(${(CAMERA_Z - FAR).toFixed(1)}, ${((CAMERA_Z - FAR) * 0.62).toFixed(1)}, dist) * smoothstep(3.0, 9.0, dist);
+  }
+`;
 
-function courtSegments() {
-  const y = FLOOR_Y;
-  const w = 4.5;
-  const z0 = NET_Z - 9;
-  const z1 = NET_Z + 9;
-  return [
-    [[-w, y, z0], [w, y, z0]],
-    [[w, y, z0], [w, y, z1]],
-    [[w, y, z1], [-w, y, z1]],
-    [[-w, y, z1], [-w, y, z0]],
-    [[-w, y, NET_Z], [w, y, NET_Z]], // centre line
-    [[-w, y, NET_Z - 3], [w, y, NET_Z - 3]], // attack lines, 3 m from the net
-    [[-w, y, NET_Z + 3], [w, y, NET_Z + 3]],
-  ];
-}
+const STAR_COLOR = /* glsl */ `
+  vec3 starColor(float seed) {
+    // mostly cream, a few amber and court-blue ones tie the sky to the ball
+    vec3 cream = vec3(0.95, 0.94, 0.91);
+    vec3 amber = vec3(1.0, 0.70, 0.28);
+    vec3 court = vec3(0.50, 0.61, 1.0);
+    float t = fract(seed * 7.13);
+    return t > 0.9 ? amber : (t > 0.82 ? court : cream);
+  }
+`;
 
-function netSegments() {
-  const bottom = FLOOR_Y + 1.43;
-  const top = FLOOR_Y + 2.43;
-  const half = 5.1;
-  const s = [];
-  for (let x = -half; x <= half + 1e-6; x += 0.3) s.push([[x, bottom, NET_Z], [x, top, NET_Z]]);
-  for (let y = bottom; y <= top + 1e-6; y += 0.25) s.push([[-half, y, NET_Z], [half, y, NET_Z]]);
-  s.push([[-half - 0.25, FLOOR_Y, NET_Z], [-half - 0.25, top + 0.12, NET_Z]]); // posts
-  s.push([[half + 0.25, FLOOR_Y, NET_Z], [half + 0.25, top + 0.12, NET_Z]]);
-  return s;
-}
-
-// Dust motes: thousands of points, all motion computed on the GPU — drift,
-// sway and the scroll-driven lift are a few lines of vertex shader, so the CPU
-// only updates three uniforms per frame however many particles there are.
-function createDust(count) {
+function createSky(count) {
   const pos = new Float32Array(count * 3);
   const seed = new Float32Array(count);
+  const farHalfH = TAN * (CAMERA_Z - FAR);
   for (let i = 0; i < count; i++) {
-    pos[i * 3] = (Math.random() - 0.5) * 32;
-    pos[i * 3 + 1] = Math.random() * 12 - 4;
-    pos[i * 3 + 2] = -34 + Math.random() * 40;
+    // spread over the far end of the view (wider than tall), a little beyond
+    pos[i * 3] = (Math.random() * 2 - 1) * farHalfH * 1.95;
+    pos[i * 3 + 1] = (Math.random() * 2 - 1) * farHalfH * 1.15;
+    pos[i * 3 + 2] = Math.random();
     seed[i] = Math.random();
   }
-  const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-  geometry.setAttribute("aSeed", new THREE.BufferAttribute(seed, 1));
-  const material = new THREE.ShaderMaterial({
-    uniforms: {
-      uTime: { value: 0 },
-      uScroll: { value: 0 },
-      uSize: { value: 1 },
-      uOpacity: { value: 1 },
-      uColA: { value: new THREE.Color("#f2efe8") },
-      uColB: { value: new THREE.Color("#ffb347") },
-    },
+
+  const points = new THREE.BufferGeometry();
+  points.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+  points.setAttribute("aSeed", new THREE.BufferAttribute(seed, 1));
+
+  // streaks: every star twice — head (aTail 0) and tail (aTail 1)
+  const linePos = new Float32Array(count * 6);
+  const lineSeed = new Float32Array(count * 2);
+  const tail = new Float32Array(count * 2);
+  for (let i = 0; i < count; i++) {
+    for (let k = 0; k < 2; k++) {
+      linePos.set(pos.subarray(i * 3, i * 3 + 3), (i * 2 + k) * 3);
+      lineSeed[i * 2 + k] = seed[i];
+      tail[i * 2 + k] = k;
+    }
+  }
+  const lines = new THREE.BufferGeometry();
+  lines.setAttribute("position", new THREE.BufferAttribute(linePos, 3));
+  lines.setAttribute("aSeed", new THREE.BufferAttribute(lineSeed, 1));
+  lines.setAttribute("aTail", new THREE.BufferAttribute(tail, 1));
+
+  const uniforms = {
+    uTravel: { value: 0 },
+    uStretch: { value: 0 },
+    uStreak: { value: 0 },
+    uSize: { value: 1 },
+    uOpacity: { value: 1 },
+  };
+
+  const pointMaterial = new THREE.ShaderMaterial({
+    uniforms,
     vertexShader: /* glsl */ `
-      attribute float aSeed;
-      uniform float uTime;
-      uniform float uScroll;
+      ${STAR_POSITION}
+      ${STAR_COLOR}
       uniform float uSize;
       varying float vAlpha;
-      varying float vTint;
+      varying vec3 vColor;
       void main() {
-        vec3 p = position;
-        // rise slowly, a little faster while scrolling, wrap inside the box
-        p.y = mod(p.y + 4.0 + uTime * (0.05 + aSeed * 0.1) + uScroll * (0.6 + aSeed * 0.8), 12.0) - 4.0;
-        p.x += sin(uTime * 0.25 + aSeed * 40.0) * 0.4;
-        vec4 mv = modelViewMatrix * vec4(p, 1.0);
+        vec4 mv = modelViewMatrix * vec4(starPosition(), 1.0);
         gl_Position = projectionMatrix * mv;
-        float depth = -mv.z;
-        gl_PointSize = uSize * (0.6 + aSeed * 1.6) * (14.0 / depth);
-        float edge = smoothstep(-4.0, -3.0, p.y) * (1.0 - smoothstep(7.0, 8.0, p.y));
-        vAlpha = edge * (0.25 + 0.75 * fract(aSeed * 7.31)) * smoothstep(46.0, 14.0, depth);
-        vTint = step(0.82, aSeed);
+        float dist = -mv.z;
+        gl_PointSize = min(uSize * (0.55 + aSeed * 1.25) * (34.0 / dist), uSize * 3.2);
+        // a slow twinkle, different for every star
+        float twinkle = 0.75 + 0.25 * sin(aSeed * 91.0 + position.z * 40.0);
+        vAlpha = starFade(dist) * (0.28 + 0.72 * fract(aSeed * 13.7)) * twinkle;
+        vColor = starColor(aSeed);
       }
     `,
     fragmentShader: /* glsl */ `
-      uniform vec3 uColA;
-      uniform vec3 uColB;
       uniform float uOpacity;
       varying float vAlpha;
-      varying float vTint;
+      varying vec3 vColor;
       void main() {
         float d = length(gl_PointCoord - 0.5);
         float a = smoothstep(0.5, 0.0, d);
-        gl_FragColor = vec4(mix(uColA, uColB, vTint), a * a * vAlpha * uOpacity * 0.7);
+        gl_FragColor = vec4(vColor, a * a * vAlpha * uOpacity);
         #include <colorspace_fragment>
       }
     `,
@@ -136,19 +148,51 @@ function createDust(count) {
     depthWrite: false,
     blending: THREE.AdditiveBlending,
   });
-  return { geometry, material };
+
+  const lineMaterial = new THREE.ShaderMaterial({
+    uniforms,
+    vertexShader: /* glsl */ `
+      ${STAR_POSITION}
+      ${STAR_COLOR}
+      attribute float aTail;
+      uniform float uStretch;
+      varying float vAlpha;
+      varying vec3 vColor;
+      void main() {
+        vec3 p = starPosition();
+        // the tail trails behind the direction of flight
+        p.z -= aTail * uStretch * (0.7 + aSeed * 0.6);
+        vec4 mv = modelViewMatrix * vec4(p, 1.0);
+        gl_Position = projectionMatrix * mv;
+        vAlpha = starFade(-mv.z) * (1.0 - aTail) * (0.35 + 0.65 * fract(aSeed * 13.7));
+        vColor = starColor(aSeed);
+      }
+    `,
+    fragmentShader: /* glsl */ `
+      uniform float uOpacity;
+      uniform float uStreak;
+      varying float vAlpha;
+      varying vec3 vColor;
+      void main() {
+        gl_FragColor = vec4(vColor, vAlpha * uStreak * uOpacity * 0.9);
+        #include <colorspace_fragment>
+      }
+    `,
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  });
+
+  return { points, lines, pointMaterial, lineMaterial, uniforms };
 }
 
 const isInteractive = (el) => !!el?.closest?.("a, button, input, textarea, select, label, summary, [role='button']");
 
-export default function Arena({ lite, fadeRef }) {
+export default function Arena({ lite }) {
   const { camera, size, invalidate, gl } = useThree();
-  const court = useRef(null);
   const shapeRefs = useRef([]);
 
-  const courtGeo = useMemo(() => linesGeometry(courtSegments()), []);
-  const netGeo = useMemo(() => linesGeometry(netSegments()), []);
-  const dust = useMemo(() => createDust(lite ? 650 : 1700), [lite]);
+  const sky = useMemo(() => createSky(lite ? 650 : 1500), [lite]);
   const shapes = useMemo(
     () =>
       SHAPES.map((def) => ({
@@ -165,21 +209,18 @@ export default function Arena({ lite, fadeRef }) {
   );
   const amber = useMemo(() => new THREE.Color("#ffb347"), []);
 
-  const state = useRef({ active: true, clock: 0, lastY: 0, scroll: 0, pointer: { nx: 0, ny: 0, x: -1e4, y: -1e4, free: false } });
+  const state = useRef({ night: true, visible: 1, clock: 0, speed: IDLE_SPEED, pointer: { nx: 0, ny: 0, x: -1e4, y: -1e4, free: false } });
 
   useEffect(() => {
     const s = state.current;
-    s.lastY = window.scrollY;
-    const hero = document.getElementById("top");
-    let io;
-    if (hero && "IntersectionObserver" in window) {
-      io = new IntersectionObserver(([entry]) => {
-        s.active = entry.isIntersecting;
-        if (s.active) invalidate();
-      });
-      io.observe(hero);
-    }
-    const offScroll = subscribeScroll(() => s.active && invalidate());
+    // day act (after the dive): the sky fades out and the loop goes to sleep
+    const onSection = (id) => {
+      s.night = sectionById(id).act === "night";
+      invalidate();
+    };
+    onSection(sectionStore.get());
+    const offSection = sectionStore.subscribe(onSection);
+    const offScroll = subscribeScroll(() => s.night && invalidate());
     const onMove = (e) => {
       s.pointer.nx = (e.clientX / window.innerWidth) * 2 - 1;
       s.pointer.ny = -((e.clientY / window.innerHeight) * 2 - 1);
@@ -204,7 +245,7 @@ export default function Arena({ lite, fadeRef }) {
     window.addEventListener("pointermove", onMove, { passive: true });
     window.addEventListener("click", onClick);
     return () => {
-      io?.disconnect();
+      offSection();
       offScroll();
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("click", onClick);
@@ -213,30 +254,40 @@ export default function Arena({ lite, fadeRef }) {
 
   useEffect(
     () => () => {
-      courtGeo.dispose();
-      netGeo.dispose();
-      dust.geometry.dispose();
-      dust.material.dispose();
+      sky.points.dispose();
+      sky.lines.dispose();
+      sky.pointMaterial.dispose();
+      sky.lineMaterial.dispose();
       shapes.forEach((sh) => {
         sh.geometry.dispose();
         sh.material.dispose();
       });
     },
-    [courtGeo, netGeo, dust, shapes]
+    [sky, shapes]
   );
 
   useFrame((_, rawDelta) => {
     const s = state.current;
-    if (!s.active) return;
     const dt = Math.min(rawDelta, 1 / 20);
     s.clock += dt;
 
-    const y = window.scrollY;
-    const heroH = document.getElementById("top")?.offsetHeight || window.innerHeight;
-    const fade = 1 - smoothstep(0.1, 0.85, y / heroH);
-    if (fadeRef.current) fadeRef.current.style.opacity = fade.toFixed(3);
-    s.scroll += (y - s.lastY) * 0.004;
-    s.lastY = y;
+    // fade the whole sky with the act; once it is gone, stop drawing
+    s.visible = damp(s.visible, s.night ? 1 : 0, 3, dt);
+    if (!s.night && s.visible < 0.01) {
+      sky.uniforms.uOpacity.value = 0;
+      return;
+    }
+
+    // ------------------------------------------------------ flight
+    const v = getScrollVelocity();
+    const target = clamp(IDLE_SPEED + v * SCROLL_SPEED, -MAX_SPEED, MAX_SPEED);
+    s.speed = damp(s.speed, target, 3.2, dt);
+    const u = sky.uniforms;
+    u.uTravel.value += s.speed * dt;
+    u.uStretch.value = s.speed * 0.16;
+    u.uStreak.value = smoothstep(4, 22, Math.abs(s.speed));
+    u.uSize.value = gl.getPixelRatio() * (lite ? 1.7 : 2.1);
+    u.uOpacity.value = s.visible;
 
     // gentle camera parallax toward the pointer (mouse only)
     if (!lite && finePointer) {
@@ -245,11 +296,11 @@ export default function Arena({ lite, fadeRef }) {
       camera.lookAt(0, 0, -6);
     }
 
-    dust.material.uniforms.uTime.value = s.clock;
-    dust.material.uniforms.uScroll.value = s.scroll;
-    dust.material.uniforms.uSize.value = gl.getPixelRatio() * (lite ? 1.6 : 2);
-
+    // ------------------------------------------------- satellites
     const anchorEl = document.querySelector(ANCHOR_SELECTOR);
+    const y = window.scrollY;
+    const heroH = document.getElementById("top")?.offsetHeight || window.innerHeight;
+    const heroFade = 1 - smoothstep(0.15, 0.8, y / heroH);
     if (anchorEl) {
       const r = anchorEl.getBoundingClientRect();
       const cx = r.left + r.width / 2;
@@ -257,21 +308,14 @@ export default function Arena({ lite, fadeRef }) {
       const R = r.width / 2;
       const k = (2 * TAN * CAMERA_Z) / size.height; // world units per px at z = 0
       const scale = R * k; // ball radius in world units
-
-      // the court lines up under the ball (its centre line sits on the ball's x).
-      // Stacked (narrow) layout: the floor would land right behind the text,
-      // so there it is left out.
       const wide = size.width >= 1024;
-      if (court.current) {
-        const ax = (cx - size.width / 2) * k;
-        court.current.position.x = damp(court.current.position.x, ax * ((CAMERA_Z - NET_Z) / CAMERA_Z), 3, dt);
-        court.current.visible = wide && fade > 0.01;
-      }
-
       const roll = getScrollVelocity() * 0.0025;
+
       shapes.forEach((sh, i) => {
         const obj = shapeRefs.current[i];
         if (!obj) return;
+        obj.visible = heroFade > 0.01;
+        if (!obj.visible) return;
         const [ox, oy] = wide ? sh.wide : sh.narrow;
         // anchored to the ball, plus their own parallax drift as you scroll
         const px = clamp(cx + ox * R, 24, size.width - 24);
@@ -300,7 +344,7 @@ export default function Arena({ lite, fadeRef }) {
         obj.rotation.z += sh.spin.z * dt;
 
         sh.material.color.copy(sh.base).lerp(amber, sh.hover);
-        sh.material.opacity = 0.42 + sh.hover * 0.45;
+        sh.material.opacity = (0.42 + sh.hover * 0.45) * heroFade;
       });
     }
 
@@ -309,15 +353,8 @@ export default function Arena({ lite, fadeRef }) {
 
   return (
     <>
-      <points geometry={dust.geometry} material={dust.material} frustumCulled={false} />
-      <group ref={court}>
-        <lineSegments geometry={courtGeo}>
-          <lineBasicMaterial color="#a9b4c9" transparent opacity={0.16} depthWrite={false} />
-        </lineSegments>
-        <lineSegments geometry={netGeo}>
-          <lineBasicMaterial color="#a9b4c9" transparent opacity={0.11} depthWrite={false} />
-        </lineSegments>
-      </group>
+      <points geometry={sky.points} material={sky.pointMaterial} frustumCulled={false} />
+      <lineSegments geometry={sky.lines} material={sky.lineMaterial} frustumCulled={false} />
       {shapes.map((sh, i) => (
         <lineSegments key={sh.geo} ref={(el) => (shapeRefs.current[i] = el)} geometry={sh.geometry} material={sh.material} />
       ))}

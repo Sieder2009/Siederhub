@@ -15,7 +15,7 @@ export default function MotionToggle() {
       aria-pressed={paused}
       aria-label="Animationen pausieren"
       title={paused ? "Animationen sind pausiert — klicken zum Fortsetzen" : "Animationen pausieren"}
-      className="inline-flex h-10 min-w-10 items-center justify-center gap-2 rounded-full border border-line px-3 text-sm font-medium text-cream transition-colors duration-200 hover:border-amber hover:text-amber aria-pressed:border-amber aria-pressed:bg-amber aria-pressed:text-night-950"
+      className="inline-flex h-10 min-w-10 items-center justify-center gap-2 rounded-full border border-line px-3 text-sm font-medium text-cream transition-colors duration-200 hover:border-amber hover:text-amber aria-pressed:border-amber aria-pressed:bg-amber aria-pressed:text-night-950 day:border-ink/45 day:text-ink day:hover:border-ember-deep day:hover:text-ember-deep day:aria-pressed:border-ink day:aria-pressed:bg-ink day:aria-pressed:text-cream"
     >
       {paused ? <Play className="size-3.5" /> : <Pause className="size-3.5" />}
       <span className="hidden sm:inline">Animationen</span>

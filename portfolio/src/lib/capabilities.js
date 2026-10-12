@@ -28,6 +28,10 @@ const saveData = typeof navigator !== "undefined" && !!navigator.connection?.sav
 
 export const canRender3D = override === "off" ? false : override === "force" ? true : supportsWebGL && !saveData;
 
+// ?3d=force also keeps the scene alive when frames run slow (software
+// renderers in automated checks would otherwise hand over to the 2D ball).
+export const forced3D = override === "force";
+
 // Phones and tablets: fewer particles, lower pixel ratio, no camera parallax.
 export const liteMode =
   typeof window !== "undefined" &&
