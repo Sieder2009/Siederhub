@@ -1,0 +1,70 @@
+/* chrome — section styles. Loaded after index.css (main.jsx); every rule sits in
+   the components layer, so Tailwind utilities still win. Plain CSS only: use
+   [data-motion="on"] / [data-act="day"] selectors instead of the custom variants. */
+@layer components {
+  /* ------------------------------------------------ header logo
+     On hover or focus the ball turns half a turn and settles with a little
+     overshoot. Only the panels turn: light and shade stay put, like a real
+     ball spinning in place (VolleyballSVG: svg > g[clip-path] > g = panels). */
+  .logo-ball > g > g {
+    transform-box: view-box;
+    transform-origin: 50% 50%;
+    transition: rotate var(--dur-rally) var(--ease-catch);
+  }
+  [data-motion="on"] .logo:is(:hover, :focus-visible) .logo-ball > g > g {
+    rotate: 180deg;
+  }
+
+  /* ------------------------------------------------ header nav
+     A permanent, transparent underline that only changes colour: court where
+     you can go (hover, focus), chalk for the section you are in. */
+  .nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    height: 2.5rem;
+    padding-inline: 0.625rem;
+    font-family: var(--font-sans);
+    font-size: var(--text-small);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0;
+    color: var(--color-mist);
+    text-decoration-line: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 6px;
+    text-decoration-color: transparent;
+    transition:
+      color var(--dur-pass) var(--ease-toss),
+      text-decoration-color var(--dur-pass) var(--ease-toss);
+  }
+  .nav-link[aria-current="location"] {
+    text-decoration-color: var(--color-chalk);
+  }
+  .nav-link:hover,
+  .nav-link:focus-visible {
+    color: var(--color-cream);
+    text-decoration-color: var(--color-court);
+  }
+  [data-act="day"] .nav-link {
+    color: var(--color-ink-soft);
+  }
+  [data-act="day"] .nav-link[aria-current="location"] {
+    text-decoration-color: var(--color-ink);
+  }
+  [data-act="day"] .nav-link:hover,
+  [data-act="day"] .nav-link:focus-visible {
+    color: var(--color-ink);
+    text-decoration-color: var(--color-court-deep);
+  }
+
+  /* ------------------------------------------------ act flip
+     For the two frames around a night/day flip (SiteHeader.jsx) nothing in
+     the header eases: "none", not a zero duration, so a colour fade that had
+     already started is cancelled and jumps to its end. */
+  [data-act-cut] *,
+  [data-act-cut] *::before,
+  [data-act-cut] *::after {
+    transition: none !important;
+  }
+}

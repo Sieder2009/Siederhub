@@ -1,52 +1,77 @@
+import { useEffect, useRef } from "react";
 import { useScrolled } from "../../hooks/useScrolled.js";
+import { useStore } from "../../lib/store.js";
+import { sectionStore } from "../../lib/sectionStore.js";
 import VolleyballSVG from "../ball/VolleyballSVG.jsx";
 import ExternalLink from "../ui/ExternalLink.jsx";
-import { GitHub } from "../ui/icons.jsx";
 import MotionToggle from "./MotionToggle.jsx";
 
-const navLink =
-  "group/link relative inline-flex h-10 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-mist transition-colors duration-200 hover:text-cream focus-visible:text-cream day:text-ink-soft day:hover:text-ink day:focus-visible:text-ink " +
-  "after:absolute after:inset-x-3 after:bottom-1.5 after:h-px after:origin-left after:scale-x-0 after:bg-amber after:transition-transform day:after:bg-ember-deep after:duration-300 hover:after:scale-x-100 focus-visible:after:scale-x-100";
-
+// The header: logo, three links and the motion toggle, on the same left edge
+// as every heading (.page). Opaque once the page is scrolled, and it flips
+// between night and day in the same frame as the page (no transition). The
+// link of the section you are in carries a chalk underline (styles: .nav-link).
 export default function SiteHeader({ profile }) {
   const scrolled = useScrolled();
+  const section = useStore(sectionStore);
   const github = profile.socials.find((s) => s.id === "github")?.url;
+  const current = (id) => (section === id ? "location" : undefined);
+  const ref = useRef(null);
+
+  // The act flip is a hard cut (the dive turns the page cream in one frame).
+  // Links and the toggle ease their colours on hover, so for the two frames
+  // around a flip nothing in the header eases (chrome.css [data-act-cut]):
+  // no frame of night-coloured text on the cream bar.
+  useEffect(() => {
+    const header = ref.current;
+    const html = document.documentElement;
+    if (!header || typeof MutationObserver === "undefined") return;
+    let raf = 0;
+    const mo = new MutationObserver((records) => {
+      // the act is rewritten on every section change: only a real flip cuts
+      if (records[0].oldValue === html.getAttribute("data-act")) return;
+      header.setAttribute("data-act-cut", "");
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => (raf = requestAnimationFrame(() => header.removeAttribute("data-act-cut"))));
+    });
+    mo.observe(html, { attributes: true, attributeFilter: ["data-act"], attributeOldValue: true });
+    return () => {
+      mo.disconnect();
+      cancelAnimationFrame(raf);
+      header.removeAttribute("data-act-cut");
+    };
+  }, []);
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-40 transition-[background-color,border-color,backdrop-filter] duration-300 ${
-        scrolled ? "border-b border-night-700/80 bg-night-950/85 backdrop-blur-md day:border-ink/10 day:bg-cream/85" : "border-b border-transparent"
+      ref={ref}
+      className={`fixed inset-x-0 top-0 z-40 border-b ${
+        scrolled ? "border-night-700 bg-night-950 day:border-ink/15 day:bg-cream" : "border-transparent"
       }`}
     >
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
-        <a href="#top" className="group flex items-center gap-2.5 rounded-full py-1 pr-2 font-display text-lg font-bold tracking-tight transition-colors day:text-ink">
-          <VolleyballSVG className="size-6 transition-transform duration-500 group-hover:rotate-[200deg] group-focus-visible:rotate-[200deg]" />
-          <span>
-            {profile.name.toLowerCase()}
-            <span className="text-amber day:text-ember-deep">.</span>
-          </span>
-          <span className="sr-only"> — zum Seitenanfang</span>
+      <div className="page flex h-16 items-center justify-between gap-3">
+        <a href="#top" className="logo group flex h-10 items-center gap-2.5 rounded-tape pr-1 font-display text-lg font-semibold text-cream day:text-ink">
+          <VolleyballSVG className="logo-ball size-6 shrink-0" />
+          <span>{profile.name}</span>
+          <span className="sr-only">, zum Seitenanfang</span>
         </a>
 
         <div className="flex items-center gap-1 sm:gap-2">
           <nav aria-label="Hauptnavigation">
-            <ul className="flex items-center gap-0.5 sm:gap-1">
+            <ul className="flex items-center">
               <li>
-                <a href="#projekte" className={navLink}>
+                <a href="#projekte" aria-current={current("projekte")} className="nav-link">
                   Projekte
                 </a>
               </li>
               <li className="hidden sm:block">
-                <a href="#werkzeug" className={navLink}>
+                <a href="#werkzeug" aria-current={current("werkzeug")} className="nav-link">
                   Werkzeug
                 </a>
               </li>
               {github && (
                 <li>
-                  <ExternalLink href={github} className={navLink}>
-                    <GitHub className="size-4" />
-                    <span className="hidden sm:inline">GitHub</span>
-                    <span className="sr-only sm:hidden">GitHub</span>
+                  <ExternalLink href={github} className="nav-link">
+                    GitHub
                   </ExternalLink>
                 </li>
               )}

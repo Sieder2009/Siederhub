@@ -1,5 +1,6 @@
 // Pure physics for the volleyball — no three.js, no React, so it runs (and is
-// tested) in plain Node: tests/ballPhysics.test.js. Vectors are [x, y, z].
+// tested) in plain Node: tests/ballPhysics.test.js, tests/ball3d-*.test.js.
+// Vectors are [x, y, z].
 //
 // Every integrator here is the *exact* solution over one time step, not an
 // Euler approximation. That makes the ball behave identically at 30, 60 or
@@ -110,4 +111,54 @@ export function sampleServe(plan, t) {
   const tf = Math.min(t - plan.hitT, plan.duration - plan.hitT);
   const { pos, vel } = ballistic(plan.hit, plan.v0, plan.accel, tf);
   return { phase: t >= plan.duration ? "landed" : "flight", pos, vel };
+}
+
+// Where the server stands: far behind the page at the top right, beyond the
+// wordmark, so the serve comes in small, rises a touch as it flies at you
+// and dips down-left across S-I-E-D-E-R onto the ball's spot. Returns the
+// toss apex in viewport fractions [x, y] and the server's depth z, phones
+// to wide screens. The apex sits just under the header row, so the far
+// ball never hangs behind the nav.
+export function servePose(width) {
+  const t = smoothstep(480, 1024, width);
+  return { apex: [lerp(0.75, 0.82, t), lerp(0.12, 0.1, t)], z: lerp(-50, -72, t) };
+}
+
+// The server's hand, deep in the scene at depth `z`, placed so that the top
+// of the toss projects exactly onto `apex` (viewport fractions). The camera
+// sits at `cameraZ` looking down -z; `unitsPerPx` is the size of one CSS px
+// on the z = 0 plane.
+export function serveStart({ apex, width, height, unitsPerPx, cameraZ, z, tossHeight = 2.8 }) {
+  const depth = (cameraZ - z) / cameraZ;
+  return [
+    (apex[0] * width - width / 2) * unitsPerPx * depth,
+    (height / 2 - apex[1] * height) * unitsPerPx * depth - tossHeight,
+    z,
+  ];
+}
+
+// Where a point in the scene lands on screen (viewport CSS px) and how much a
+// unit of size there is scaled by perspective.
+export function project(pos, { width, height, unitsPerPx, cameraZ }) {
+  const persp = cameraZ / (cameraZ - pos[2]);
+  return {
+    x: width / 2 + (pos[0] * persp) / unitsPerPx,
+    y: height / 2 - (pos[1] * persp) / unitsPerPx,
+    scale: persp,
+  };
+}
+
+// ------------------------------------------------------------ contact squash
+// The ball gives on contact: q is its stretch along the contact axis (−0.1 =
+// 10 % flatter, the cross-section grows so the volume stays the same). A
+// stiff, lightly damped spring: it bottoms out ≈ 50 ms after the contact,
+// rebounds once, and is round again well inside --dur-rally.
+export const SQUASH = { omega: 26, zeta: 0.32, min: -0.18, max: 0.16 };
+
+// The velocity kick that makes a squash spring at rest bottom out at −depth.
+export function squashKick(depth, o = SQUASH) {
+  const wd = o.omega * Math.sqrt(1 - o.zeta * o.zeta);
+  const tPeak = Math.atan2(wd, o.zeta * o.omega) / wd;
+  const unit = (Math.exp(-o.zeta * o.omega * tPeak) * Math.sin(wd * tPeak)) / wd;
+  return -depth / unit;
 }

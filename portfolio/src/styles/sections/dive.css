@@ -1,0 +1,14 @@
+/* dive — section styles. Loaded after index.css (main.jsx); every rule sits in
+   the components layer, so Tailwind utilities still win. Plain CSS only: use
+   [data-motion="on"] / [data-act="day"] selectors instead of the custom variants. */
+@layer components {
+  /* Calm path: the ball's shadow on the cream. With the 3D ball it is only
+     there while the ball rests on the line; it comes and goes with the
+     contact, as fast as a touch. */
+  .dive-shadow {
+    transition: opacity var(--dur-touch) var(--ease-toss);
+  }
+  .dive-shadow[data-away="true"] {
+    opacity: 0;
+  }
+}

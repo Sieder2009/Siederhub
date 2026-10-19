@@ -15,15 +15,12 @@ import { beats, toolkit } from "./data/story.js";
 import Rally from "./components/sections/Rally.jsx";
 import BallLayer from "./components/BallLayer.jsx";
 import BallDock from "./components/BallDock.jsx";
-import ScrollProgress from "./components/motion/ScrollProgress.jsx";
 import LiveFavicon from "./components/motion/LiveFavicon.jsx";
-import PointerGlow from "./components/motion/PointerGlow.jsx";
 import CalmNotice from "./components/motion/CalmNotice.jsx";
 
-// Layering (z-index): sky canvas 0 · pointer glow 5 · page content 10 ·
-// dock button 20 · ball canvas 30 · header & calm notice 40 · scroll
-// progress 45 · skip link 50. Both canvases ignore the
-// pointer; the 3D scene hit-tests the cursor itself.
+// Layering (z-index): sky canvas 0 · page content 10 · dock 20 · ball canvas 30 ·
+// header & calm notice 40 · skip link 50. Both canvases ignore the pointer;
+// the 3D scene hit-tests the cursor itself.
 export default function App() {
   const motion = useStore(motionStore);
   useSectionTracking();
@@ -34,14 +31,12 @@ export default function App() {
     <>
       <a
         href="#main"
-        className="sr-only rounded-full bg-amber px-5 py-3 font-semibold text-night-950 focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50"
+        className="sr-only rounded-tape bg-amber px-5 py-3 font-semibold text-night-950 focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50"
       >
         Zum Inhalt springen
       </a>
 
-      <ScrollProgress />
       <SiteHeader profile={profile} />
-      <PointerGlow />
       <BallLayer />
 
       <main id="main" tabIndex={-1} className="relative z-10 focus:outline-none">

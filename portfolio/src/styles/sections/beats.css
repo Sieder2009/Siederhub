@@ -1,0 +1,16 @@
+/* beats — section styles. Loaded after index.css (main.jsx); every rule sits in
+   the components layer, so Tailwind utilities still win. Plain CSS only: use
+   [data-motion="on"] / [data-act="day"] selectors instead of the custom variants. */
+@layer components {
+  /* ------------------------------------------------ beats ("Jeder Satz zählt")
+     Every beat stays at full strength and holds still; the only thing that
+     moves is the chalk tally after "zählt.", drawn by the shared .pen-stroke
+     (index.css) via data-drawn. A stroke is drawn only when a beat is read:
+     when the tally is armed, refreshed or jumped across several lines at once
+     (Beats.jsx sets data-settle for a frame or two), the strokes take their
+     new state without a hand. Removing a running transition this way also
+     cancels it, so a stale stroke never finishes drawing or wiping. */
+  .tally[data-settle] .pen-stroke {
+    transition: none;
+  }
+}

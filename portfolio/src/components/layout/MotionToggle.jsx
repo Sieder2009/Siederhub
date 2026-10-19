@@ -1,23 +1,25 @@
 import { useStore } from "../../lib/store.js";
 import { motionStore, toggleMotion } from "../../lib/motionStore.js";
+import { keepReadingPosition } from "../../lib/smoothScroll.js";
 import { Pause, Play } from "../ui/icons.jsx";
 
-// WCAG 2.2.2 (Pause, Stop, Hide): the ball and the particles move for longer
-// than five seconds, so there has to be a visible way to stop them. A toggle
-// with a constant name and aria-pressed for its state; "paused" takes exactly
-// the reduced-motion path (2D ball, no 3D chunk, CSS animations off).
+// WCAG 2.2.2 (Pause, Stop, Hide): the ball moves for longer than five
+// seconds, so there has to be a visible way to stop it. A toggle with a
+// constant name and aria-pressed for its state; "paused" takes exactly the
+// reduced-motion path (2D ball, no 3D chunk, CSS animations off). Pinned
+// scenes turn into plain ones and back, so the reader is kept in place.
 export default function MotionToggle() {
   const paused = useStore(motionStore) === "off";
   return (
     <button
       type="button"
-      onClick={toggleMotion}
+      onClick={() => keepReadingPosition(toggleMotion)}
       aria-pressed={paused}
       aria-label="Animationen pausieren"
-      title={paused ? "Animationen sind pausiert — klicken zum Fortsetzen" : "Animationen pausieren"}
-      className="inline-flex h-10 min-w-10 items-center justify-center gap-2 rounded-full border border-line px-3 text-sm font-medium text-cream transition-colors duration-200 hover:border-amber hover:text-amber aria-pressed:border-amber aria-pressed:bg-amber aria-pressed:text-night-950 day:border-ink/45 day:text-ink day:hover:border-ember-deep day:hover:text-ember-deep day:aria-pressed:border-ink day:aria-pressed:bg-ink day:aria-pressed:text-cream"
+      title={paused ? "Animationen pausiert. Klicken zum Fortsetzen." : "Animationen pausieren"}
+      className="ctl"
     >
-      {paused ? <Play className="size-3.5" /> : <Pause className="size-3.5" />}
+      {paused ? <Play className="" /> : <Pause className="" />}
       <span className="hidden sm:inline">Animationen</span>
     </button>
   );

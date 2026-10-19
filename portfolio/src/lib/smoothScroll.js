@@ -3,12 +3,17 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { motionStore } from "./motionStore.js";
 import { finePointer } from "./capabilities.js";
+import { sendBall } from "./ballBridge.js";
+import { sectionStore } from "./sectionStore.js";
+import { CINEMA_QUERY } from "../hooks/useMedia.js";
 
 // One scroll source for the whole page. Lenis smooths wheel/trackpad input
-// (mouse users with motion on only — touch keeps the native feel) and drives
-// GSAP's ticker, so every ScrollTrigger reads the very same position. The
-// 3D scene reads window.scrollY on its own clock; Lenis moves the real
-// scroll position, so it stays in step without any state passed around.
+// and drives GSAP's ticker, so every ScrollTrigger reads the very same
+// position. It only runs where the full choreography runs: motion on, a
+// mouse, and a screen of at least 960×700 (CINEMA_QUERY). Touch, small and
+// short screens keep the native feel. The 3D scene reads window.scrollY on
+// its own clock; Lenis moves the real scroll position, so it stays in step
+// without any state passed around.
 gsap.registerPlugin(ScrollTrigger);
 
 let lenis = null;
@@ -16,7 +21,7 @@ const tick = (time) => lenis?.raf(time * 1000);
 
 function start() {
   if (lenis) return;
-  lenis = new Lenis({ autoRaf: false, lerp: 0.12, wheelMultiplier: 0.95 });
+  lenis = new Lenis({ autoRaf: false, lerp: 0.11, wheelMultiplier: 1 });
   lenis.on("scroll", ScrollTrigger.update);
   gsap.ticker.add(tick);
   gsap.ticker.lagSmoothing(0);
@@ -29,18 +34,74 @@ function stop() {
   lenis = null;
 }
 
+const cinema = typeof window !== "undefined" && window.matchMedia ? window.matchMedia(CINEMA_QUERY) : null;
+
 export function syncSmoothScroll() {
-  if (motionStore.get() === "on" && finePointer) start();
+  if (motionStore.get() === "on" && finePointer && cinema?.matches) start();
   else stop();
 }
 
-const easeOut = (t) => 1 - Math.pow(1 - t, 4);
+// resizing below (or back above) the cinema size hands scrolling back and forth
+cinema?.addEventListener?.("change", syncSmoothScroll);
 
-// Scroll the page to a y position — smoothly when motion is on.
+const easeOut = (t) => 1 - Math.pow(1 - t, 4);
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+
+// A smooth jump longer than this many screens is a page turn: an instant
+// cut, so a nav click never scrubs through every scene in between.
+const PAGE_TURN = 2.2;
+
+// Jump without any glide. "instant", not "auto": while motion is on, html has
+// scroll-behavior: smooth, and "auto" would follow it.
+function jumpTo(y) {
+  if (lenis) lenis.scrollTo(y, { immediate: true, force: true });
+  else window.scrollTo({ top: y, behavior: "instant" });
+}
+
+// After a page turn the ball is put straight on its new spot instead of
+// flying across. Which spot that is depends on the section it is in, and the
+// section tracker only learns about the jump from its next
+// IntersectionObserver report, so the snap waits for that report (the
+// section changes) or, when the jump stayed inside one section, two frames.
+let cancelSnap = null;
+function snapBallAfterJump() {
+  cancelSnap?.();
+  let raf = 0;
+  const snap = () => {
+    cancelSnap();
+    sendBall("snap");
+  };
+  const off = sectionStore.subscribe(snap);
+  raf = requestAnimationFrame(() => (raf = requestAnimationFrame(snap)));
+  cancelSnap = () => {
+    off();
+    cancelAnimationFrame(raf);
+    cancelSnap = null;
+  };
+}
+
+// Scroll the page to a y position: a short glide when motion is on (the
+// longer the way, the longer the glide, 0.55 to 1 s), a page turn for long
+// ways, and a plain jump otherwise.
 export function scrollToY(y, { immediate = false } = {}) {
   const smooth = !immediate && motionStore.get() === "on";
-  if (lenis) lenis.scrollTo(y, { immediate: !smooth, duration: 1.15, easing: easeOut, force: true });
-  else window.scrollTo({ top: y, behavior: smooth ? "smooth" : "auto" });
+  if (!smooth) return jumpTo(y);
+
+  const vh = window.innerHeight || 1;
+  const dy = Math.abs(y - window.scrollY);
+  if (dy > PAGE_TURN * vh) {
+    jumpTo(y);
+    ScrollTrigger.update();
+    snapBallAfterJump();
+    return;
+  }
+
+  if (lenis) {
+    const duration = clamp(0.45 + 0.25 * Math.sqrt(dy / vh), 0.55, 1.0);
+    lenis.scrollTo(y, { duration, easing: easeOut, force: true });
+  } else {
+    window.scrollTo({ top: y, behavior: "smooth" });
+  }
 }
 
 // Where an anchor target lands: its top, minus its own scroll-margin-top.
@@ -65,9 +126,54 @@ export function scrollToTarget(el, { immediate = false, focus = true } = {}) {
   if (focus) focusTarget(el);
 }
 
+const SECTION_IDS = "#top, #warum, #projekte, #angriff, #werkzeug, #kontakt";
+const ANCHORS = "article, li, [data-anchor-focus], section[id], footer";
+const READ_LINE = 0.4; // the reader's eye: 40% down the screen
+
+// Run a change that re-lays out the page (the motion toggle swaps pinned
+// scenes for plain ones and back) and keep the reader where they were: the
+// element under their eye stays at the same height on screen, and they never
+// leave the section they were in. Never animates.
+export function keepReadingPosition(change) {
+  const line = window.innerHeight * READ_LINE;
+  const probe = document.elementFromPoint(window.innerWidth / 2, line);
+  const anchor = probe?.closest(ANCHORS) ?? null;
+  const sectionId = probe?.closest(SECTION_IDS)?.id ?? null;
+  const box = anchor?.getBoundingClientRect();
+  const savedTop = box ? box.top : 0;
+  // the anchor is a whole section (the eye is between its items): remember
+  // how far through it the reader is instead, since its height will change
+  const whole = !!anchor && anchor.id === sectionId && !!box && box.height > 0;
+  const share = whole ? (line - box.top) / box.height : 0;
+
+  change();
+
+  requestAnimationFrame(() =>
+    requestAnimationFrame(() => {
+      ScrollTrigger.refresh();
+      const eye = window.innerHeight * READ_LINE;
+      let y = null;
+      if (anchor?.isConnected) {
+        const now = anchor.getBoundingClientRect();
+        y = whole ? now.top + window.scrollY + share * now.height - eye : now.top + window.scrollY - savedTop;
+      }
+      const section = sectionId ? document.getElementById(sectionId) : null;
+      if (section) {
+        const r = section.getBoundingClientRect();
+        const top = r.top + window.scrollY;
+        const bottom = r.bottom + window.scrollY;
+        // landed outside the section (or nothing to measure): its top then
+        if (y === null || y + eye < top || y + eye >= bottom) y = targetY(section);
+      }
+      if (y !== null) scrollToY(Math.max(0, y), { immediate: true });
+    })
+  );
+}
+
 // Same-page links (#projekte, #top …) go through scrollToTarget, so they
-// glide with Lenis, respect each section's landing offset and carry focus.
-// A hash in the URL on arrival is honoured once the page has laid out.
+// glide with Lenis (or turn the page), respect each section's landing offset
+// and carry focus. A hash in the URL on arrival is honoured once the page
+// has laid out.
 export function initAnchors() {
   const onClick = (e) => {
     if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;

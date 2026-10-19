@@ -9,7 +9,7 @@ import { forced3D } from "../../lib/capabilities.js";
 // Everything three.js lives in this lazily loaded chunk (see BallLayer.jsx).
 //
 // Two transparent, fixed, full-screen canvases with pointer-events: none:
-//   arena – BEHIND the content (z-0): star field + wireframe satellites
+//   arena – BEHIND the content (z-0): a sparse field of still stars
 //   ball  – ABOVE the content (z-30): only the volleyball, which never rests
 //           under text (hero anchor or corner dock), so nothing gets covered
 // Both render on demand: the arena only during the night act (until the

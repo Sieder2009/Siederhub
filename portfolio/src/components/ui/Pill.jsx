@@ -1,38 +1,30 @@
 import { forwardRef } from "react";
-import RollLabel from "./RollLabel.jsx";
 
-// The page's button: a pill with a round icon well on the left. On hover or
-// keyboard focus the icon slides out while its twin slides in, and the label
-// rolls over letter by letter (styles/index.css → .pill). Renders a link
+// Kept for the call sites that still use it: maps the old pill tones onto
+// the two button styles of styles/index.css. The label is plain text, the
+// one trailing icon says where the link goes, and the class sizes it.
+//   tone "amber" (default) → .serve · "ink" → .serve[data-tone="ink"]
+//   tone "ghost" | "ink-ghost", or size "sm" → .line-link
+// hoverIcon is accepted and ignored (no icon swap any more). Renders a link
 // when it has an href, otherwise a button.
-//   tone: "amber" (default) | "ghost" | "ink" | "ink-ghost"
-//   size: undefined | "sm"
 const Pill = forwardRef(function Pill(
   { href, external = false, icon: Icon, hoverIcon, label, tone = "amber", size, className = "", srContext, ...props },
   ref
 ) {
-  const Twin = hoverIcon || Icon;
+  const line = tone === "ghost" || tone === "ink-ghost" || size === "sm";
   const content = (
     <>
-      {Icon && (
-        <span className="pill-icon" aria-hidden="true">
-          <Icon className="" />
-          <Twin className="" />
-        </span>
-      )}
-      <span className="pill-label">
-        <RollLabel text={label} />
-      </span>
+      {label}
       {srContext && <span className="sr-only">: {srContext}</span>}
       {external && <span className="sr-only"> (öffnet in neuem Tab)</span>}
+      {Icon && <Icon className="" />}
     </>
   );
 
   const shared = {
     ref,
-    className: `pill ${className}`,
-    "data-tone": tone === "amber" ? undefined : tone,
-    "data-size": size,
+    className: `${line ? "line-link" : "serve"} ${className}`.trim(),
+    "data-tone": !line && tone === "ink" ? "ink" : undefined,
     ...props,
   };
 

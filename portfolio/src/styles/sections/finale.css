@@ -1,0 +1,22 @@
+/* finale — section styles. Loaded after index.css (main.jsx); every rule sits in
+   the components layer, so Tailwind utilities still win. Plain CSS only: use
+   [data-motion="on"] / [data-act="day"] selectors instead of the custom variants. */
+@layer components {
+  /* ------------------------------------------------ the 2D ball on the court line
+     (Finale): the drawn ball stops 1.5% short of its box (radius 96 of 100,
+     plus a 1-unit outline), while the 3D ball fills the box exactly. Nudge the
+     drawing down so both rest on the line's centre, the spot's bottom edge.
+     Static: this is a resting position, not motion. It moves the drawing,
+     never the measured [data-ball-spot] box. */
+  .finale-ball {
+    translate: 0 1.5%;
+  }
+
+  /* ------------------------------------------------ focus ring on cream
+     The base ring's `outline: 2px solid` shorthand resets outline-color to
+     currentColor, so the ink serve (cream text) would draw a cream ring on
+     the cream page. Pin the day ring here (court-deep on cream: 7.32:1). */
+  #kontakt :focus-visible {
+    outline-color: var(--color-court-deep);
+  }
+}

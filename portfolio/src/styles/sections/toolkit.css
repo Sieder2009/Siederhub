@@ -1,0 +1,20 @@
+/* toolkit — section styles. Loaded after index.css (main.jsx); every rule sits in
+   the components layer, so Tailwind utilities still win. Plain CSS only: use
+   [data-motion="on"] / [data-act="day"] selectors instead of the custom variants. */
+@layer components {
+  /* The score sheet: the project columns share what the tool column leaves
+     (66%) evenly, so the ticks stand in a straight grid. The table keeps its
+     auto layout, so a column still widens if a name's longest word needs it.
+     --cols is set on the table from the number of columns. */
+  #werkzeug thead th + th {
+    width: calc(66% / var(--cols, 7));
+    text-wrap: balance;
+  }
+
+  /* A row that was already on the sheet when the page looked (data-pen is
+     set by Toolkit.jsx: a load or jump past its line, or the calm path): its
+     ticks are simply there, no stroke runs. */
+  #werkzeug tr[data-pen="still"] .pen-stroke {
+    transition: none;
+  }
+}

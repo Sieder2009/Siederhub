@@ -16,7 +16,7 @@ export const profile = {
   highlight: "Commit",
 
   intro:
-    "Ich entwickle native Apps mit Flutter und interaktive Websites mit React und Three.js — vom Trainings-Tracker für vier Plattformen bis zur begehbaren 3D-Welt. Jedes Projekt hier kannst du dir direkt ansehen — live, im Browser spielbar oder auf seiner Produktseite — und den Code dazu lesen.",
+    "Ich baue Apps mit Flutter und Websites mit React und Three.js. Zum Beispiel Ironpeak, eine Trainings-App mit 535 Übungen.",
 
   // Social Links: url: null = wird nicht angezeigt.
   socials: [

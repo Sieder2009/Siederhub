@@ -1,0 +1,178 @@
+/* hero — section styles. Loaded after index.css (main.jsx); every rule sits in
+   the components layer, so Tailwind utilities still win. Plain CSS only: use
+   [data-motion="on"] / [data-act="day"] selectors instead of the custom variants. */
+@layer components {
+  /* ------------------------------------------------ hero wordmark
+     Sized by its own box (container query), so S-I-E-D-E-R always spans the
+     full width — 390 px phone or 4K screen. --wm-ratio is the wordmark's
+     width per 1 px of font size in Unbounded Black. Flat cream: the ball is
+     the only amber object on this screen. The letters only ever move when
+     the serve lands (Hero.jsx); they have no entrance. */
+  .wordmark-box {
+    container-type: inline-size;
+  }
+  .wordmark {
+    --wm-ratio: 5.02;
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: calc(100cqw / var(--wm-ratio));
+    line-height: 0.82;
+    letter-spacing: -0.035em;
+    color: var(--color-cream);
+  }
+  .wm-letter {
+    display: inline-block;
+    transform-origin: 50% 100%;
+  }
+
+  /* ------------------------------------------------ net tape
+     The h1 is as wide as .wordmark-box, so as a size container it lets the
+     tape (a sibling of the box) work in wordmark units: 100cqw / 5.02 is the
+     wordmark's font size. Unbounded's baseline sits 0.035em above the bottom
+     of its 0.82em line box; the tape's line is drawn at y = 12 of its 24 px
+     box. Pulled up so the top edge of the line is the baseline: the letters
+     stand on the tape. */
+  .hero-title {
+    container-type: inline-size;
+  }
+  .hero-tape {
+    margin-top: calc(100cqw / 5.02 * -0.035 - 12px + var(--tape-w, 2px) / 2);
+  }
+
+  /* Font gate (Hero.jsx): hidden, not animated, until Unbounded is in, so
+     the fallback font never shows in the wordmark. */
+  #top[data-wait] :is(.wordmark-box, .tape, .hero-role) {
+    visibility: hidden;
+  }
+
+  /* ------------------------------------------------ ball stage
+     The stage's bottom edge is the floor line. The square ball box
+     overhangs it: the anchor is inset 8%, and the 3D ball bobs 4.5% of its
+     radius around the anchor's centre, so the floor sits at 94% of the
+     square, where the low point of the bob just touches it. --ball is the
+     square's width. */
+  .hero-stage {
+    --ball: min(52vw, 14rem);
+  }
+  .hero-ball {
+    width: var(--ball);
+    aspect-ratio: 1 / 0.94;
+    margin-inline: auto;
+  }
+  .hero-floor {
+    position: absolute;
+    top: 100%;
+    inset-inline: 0;
+    margin-inline: auto;
+    width: min(100%, var(--ball) * 1.5);
+    height: 2px;
+    background: color-mix(in srgb, var(--color-chalk) 55%, transparent);
+  }
+  @media (min-width: 48rem) {
+    .hero-stage {
+      --ball: min(clamp(12rem, 40svh, 27rem), 100%);
+    }
+    .hero-ball {
+      margin-inline: 0;
+    }
+    /* from the stage (columns 1–6) to the container's right edge */
+    .hero-floor {
+      right: auto;
+      margin-inline: 0;
+      width: calc(200% + var(--gutter));
+    }
+  }
+
+  /* The 2D ball: the anchor's square, set 3.2% lower so the drawn ball
+     (r = 96 of 100) rests on the floor line instead of hovering over it. */
+  .hero-ball-2d {
+    position: absolute;
+    inset: 11.2% 8% 4.8%;
+  }
+
+  /* Contact shadow, centred on the floor line. On the night sky it only
+     shows where it covers the chalk line: the line goes dark under the
+     ball. The 3D scene feeds --ball-shadow onto [data-ball-stage] (1 = the
+     ball sits on its spot, 0 = away); the 2D ball leaves it at 1. */
+  .ball-shadow {
+    position: absolute;
+    top: 100%;
+    left: 20%;
+    width: 60%;
+    aspect-ratio: 8 / 1;
+    translate: 0 calc(-50% + 1px);
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgb(6 10 20 / 0.96), rgb(6 10 20 / 0.6) 55%, transparent);
+    opacity: var(--ball-shadow, 1);
+    transform: scaleX(calc(0.55 + var(--ball-shadow, 1) * 0.45));
+  }
+
+  .hero-replay {
+    position: absolute;
+    top: calc(100% + 0.75rem);
+    inset-inline: 0;
+    width: max-content;
+    margin-inline: auto;
+  }
+
+  /* ------------------------------------------------ 2D serve
+     The fallback ball is thrown in from the top right and lands on the
+     floor line. Each axis has its own physics, so each lives on its own
+     element or property:
+       x      outer box, `translate`: constant speed (linear)
+       y      inner box, `translate`: gravity. It leaves the apex at rest and
+              accelerates down (drop ease).
+       depth  inner box, `transform`: scale 0.3 → 1 as the ball comes at you;
+              under perspective that growth speeds up too (drop ease).
+     Only the named curves of the motion system: drop for the fall, toss for
+     the squash and its recovery.
+     Contact is at 78% (0.858 s), the moment the fall animation ends;
+     BallStage fires "ball:land" on that animationend. The ball squashes
+     onto the line (bottom held on the floor), rebounds a hair stretched,
+     and settles. The shadow slides in under it along the line. */
+  [data-motion="on"] .hero-serve-2d {
+    animation: hero-serve-x 0.858s linear both;
+  }
+  [data-motion="on"] .hero-serve-2d > * {
+    animation:
+      hero-serve-fall 0.858s cubic-bezier(0.32, 0, 0.67, 0) both,
+      hero-serve-body 1.1s linear both;
+  }
+  [data-motion="on"] .hero-shadow-2d {
+    animation:
+      hero-shadow-x 0.858s linear both,
+      hero-shadow-2d 1.1s linear both;
+  }
+
+  @keyframes hero-serve-x {
+    0% { translate: 130% 0; opacity: 0; }
+    12% { opacity: 1; }
+    100% { translate: 0 0; opacity: 1; }
+  }
+  @keyframes hero-serve-fall {
+    from { translate: 0 -150%; }
+    to { translate: 0 0; }
+  }
+  /* squash: translateY = (1 − scaleY) · 49% keeps the drawn ball's bottom on the floor */
+  @keyframes hero-serve-body {
+    0% { transform: translate(0, 0) scale(0.3); animation-timing-function: cubic-bezier(0.32, 0, 0.67, 0); }
+    78% { transform: translate(0, 0) scale(1); animation-timing-function: cubic-bezier(0.33, 1, 0.68, 1); }
+    81.5% { transform: translate(0, 4.9%) scale(1.07, 0.9); animation-timing-function: cubic-bezier(0.33, 1, 0.68, 1); }
+    89% { transform: translate(0, -2.7%) scale(0.98, 1.025); animation-timing-function: cubic-bezier(0.33, 1, 0.68, 1); }
+    100% { transform: translate(0, 0) scale(1); }
+  }
+  /* under the ball all the way: 130% of the ball box = 182% of the shadow */
+  @keyframes hero-shadow-x {
+    from { translate: 182% calc(-50% + 1px); }
+    to { translate: 0 calc(-50% + 1px); }
+  }
+  @keyframes hero-shadow-2d {
+    0% { opacity: 0; transform: scaleX(0.45); animation-timing-function: cubic-bezier(0.32, 0, 0.67, 0); }
+    78% { opacity: 1; transform: scaleX(1); animation-timing-function: cubic-bezier(0.33, 1, 0.68, 1); }
+    81.5% { opacity: 1; transform: scaleX(1.08); animation-timing-function: cubic-bezier(0.33, 1, 0.68, 1); }
+    89% { opacity: 0.85; transform: scaleX(0.96); animation-timing-function: cubic-bezier(0.33, 1, 0.68, 1); }
+    100% { opacity: 1; transform: scaleX(1); }
+  }
+}
